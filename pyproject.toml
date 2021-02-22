@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pytorch-test"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torch = "^1.7.0"
+numpy = "^1.20.1"
+pandas = "^1.2.2"
+pyarrow = "^3.0.0"
+
+[tool.poetry.dev-dependencies]
+ipykernel = "^5.5.0"
+tensorboard = "^2.4.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
