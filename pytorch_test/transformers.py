@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 import torch
 
-class SequentialTransformer(object):
+class sequential_transformer(object):
     """Applies a series of transformations on input data."""
     def __init__(self, functions):
         assert all(callable(x) for x in functions) # everything in here should be callable
@@ -14,7 +14,7 @@ class SequentialTransformer(object):
             x = fn(x)
         return x
 
-class SplitTransformer(object):
+class split_transformer(object):
     """A transformer that splits the input (which should be some map-type object like a list)
     among its stored transformers. Useful for applying different transformations to different parts
     of the data."""
@@ -27,7 +27,7 @@ class SplitTransformer(object):
             x[i] = self.functions[i](x[i])
         return x
 
-class PivotTransformer(object):
+class pivot_transformer(object):
     """Takes the input (lists of arrays) and returns a pivot table."""
     def __init__(self, val_idx=0, col_idx=3, row_idx=2, add_index_col=True):
         """Creates a pivot transformer.
@@ -48,19 +48,19 @@ class PivotTransformer(object):
         pivot[:,0] = array[:,self.row_idx]
         return pivot
 
-class LabelBinarizerTransformer(object):
+class label_binarizer_transformer(object):
     """Simple wrapper around scikit-learn's labelbinarizer."""
     def __init__(self, classlist):
         self.lb = LabelBinarizer().fit(classlist)
     def __call__(self, x):
         return self.lb.transform([x])
 
-class TensorTransformer(object):
+class tensor_transformer(object):
     """The simplest transformer, just returns a tensor of the input"""
     def __call__(self, x):
         return torch.as_tensor(x)
 
-class InterpolateTransformer(object):
+class interpolate_transformer(object):
     """Takes 0-filled data and interpolates it."""
     def __init__(self, index_col=0, interp_cols=[]):
         """Creates the transformer.
