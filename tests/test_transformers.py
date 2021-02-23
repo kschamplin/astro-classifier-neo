@@ -45,6 +45,13 @@ def test_label_binarizer_transformer(random):
     res = np.array(transformer(inputs))
     assert res.shape == (1,5) # the shape is correct (5 classes)
     assert res[0,inputs] == 1 # the correct value is one (deterministic)
+    assert np.sum(transformer([6])) == 0 # failed classes get empty arrays
 
 def test_interpolate_transformer(random):
-    inputs = np.random.rand()
+    mask = random.integers(2,size=(10))
+    inputs = np.stack([
+        np.arange(10), # "index" column
+        random.random(size=(10)) * mask #random values with some masked.
+        ])
+    transformer = transformers.interpolate_transformer(interp_cols=[1])
+    res = transformer(inputs)
