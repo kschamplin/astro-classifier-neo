@@ -9,4 +9,3 @@ build
 htmlcov
 
 .ipynb_checkpoints
-data
