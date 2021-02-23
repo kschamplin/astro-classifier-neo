@@ -27,6 +27,7 @@ label_map = {
     # 995: "μLens-String"
 }
 
+
 class plasticc_dataset(torch.utils.data.Dataset):
     def __init__(self, file, transform=None):
         """Create a plasticc dataset from the given file.
