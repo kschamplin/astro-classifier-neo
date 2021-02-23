@@ -14,13 +14,17 @@ def multiply_transform():
         return s * 2
     return fn
 
-def test_sequential_transformer(add_1_transform):
-    inputarray = np.array([1,2,3,4])
-    transformer = transformers.sequential_transformer([add_1_transform])
-    assert np.all(transformer(inputarray) == inputarray + 1)
+@pytest.fixture
+def random():
+    return np.random.default_rng()
 
-def test_split_transformer(add_1_transform, multiply_transform):
-    inputs = np.array([[1,2,3], [4,5,6]])
+def test_sequential_transformer(add_1_transform, random):
+    inputs = random.integers(5,size=(5))
+    transformer = transformers.sequential_transformer([add_1_transform])
+    assert np.all(transformer(inputs) == inputs + 1)
+
+def test_split_transformer(add_1_transform, multiply_transform, random):
+    inputs = random.integers(5, size=(2,3))
     transformer = transformers.split_transformer([
         add_1_transform,
         multiply_transform
@@ -29,18 +33,18 @@ def test_split_transformer(add_1_transform, multiply_transform):
     assert np.all(res[0] == add_1_transform(inputs[0]))
     assert np.all(res[1] == multiply_transform(inputs[1]))
 
-def test_tensor_transformer():
-    inputs = np.random.rand(3)
+def test_tensor_transformer(random):
+    inputs = random.integers(3)
     transformer = transformers.tensor_transformer()
     res = transformer(inputs)
     assert torch.equal(res,torch.as_tensor(inputs))
 
-def test_label_binarizer_transformer():
-    inputs = np.random.randint(5)
+def test_label_binarizer_transformer(random):
+    inputs = random.integers(5)
     transformer = transformers.label_binarizer_transformer(range(5))
     res = np.array(transformer(inputs))
     assert res.shape == (1,5) # the shape is correct (5 classes)
     assert res[0,inputs] == 1 # the correct value is one (deterministic)
 
-def test_interpolate_transformer():
-    inputs = np.random.randint()
+def test_interpolate_transformer(random):
+    inputs = np.random.rand()
