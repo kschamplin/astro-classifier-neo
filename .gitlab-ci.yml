@@ -31,4 +31,4 @@ test:
 
 lint:
   script:
-    - poetry run flake8
+    - poetry run flake8 -v
