@@ -18,6 +18,10 @@ def multiply_transform():
 def random():
     return np.random.default_rng()
 
+@pytest.fixture
+def dataset():
+    # this should return a dataset in pandas form
+
 def test_sequential_transformer(add_1_transform, random):
     inputs = random.integers(5,size=(5))
     transformer = transformers.sequential_transformer([add_1_transform])
