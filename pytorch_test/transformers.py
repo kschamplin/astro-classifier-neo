@@ -3,17 +3,19 @@
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 import torch
-
+import pandas as pd
+from typing import Any
+from collections.abc import Callable
 
 class sequential_transformer(object):
     """Applies a series of transformations on input data."""
 
-    def __init__(self, functions):
+    def __init__(self, functions: list[Callable[Any, Any]]) -> None:
         # everything in here should be callable
         assert all(callable(x) for x in functions)
         self.functions = functions
 
-    def __call__(self, x):
+    def __call__(self, x: Any) -> Any:
         for fn in self.functions:
             x = fn(x)
         return x
@@ -98,3 +100,14 @@ class interpolate_transformer(object):
             yi = obj[nonzero_idx, ax]  # the values at those points
             obj[:, ax] = np.interp(x, xi, yi)
         return obj
+
+class pandas_split_transformer(object):
+    """Splits the input pandas series into groups by name"""
+
+    def __init__(self, splits: list[list[Any]]):
+        """Creates the transformer.
+        `splits` is a list of index groups."""
+        self.splits = splits
+
+    def __call__(self, x: pd.Series) -> list[pd.Series]:
+        return [x[s] for s in self.splits]

@@ -2,13 +2,13 @@ import pytest
 import pytorch_test.transformers as transformers
 import numpy as np
 import torch
-
+import pandas as pd
 
 # some simple transformers for the container tests
 @pytest.fixture
 def add_1_transform():
     def fn(s):
-        return s+1
+        return s + 1
     return fn
 
 
@@ -71,3 +71,14 @@ def test_interpolate_transformer(random):
     ])
     transformer = transformers.interpolate_transformer(interp_cols=[1])
     res = transformer(inputs)
+
+
+def test_pandas_split_transformer(random):
+    data = {
+        "foo": random.integers(5),
+        "bar": 2
+    }
+    transformer = transformers.pandas_split_transformer([['foo'], ['bar']])
+    res = transformer(pd.Series(data))
+    assert res[0]['foo'] == data['foo']
+    assert res[1]['bar'] == data['bar']
