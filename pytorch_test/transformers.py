@@ -26,12 +26,12 @@ class split_transformer(object):
     among its stored transformers. Useful for applying different transformations to different parts
     of the data."""
 
-    def __init__(self, functions):
+    def __init__(self, functions: list[Callable[Any, Any]]) -> None:
         # everything in here should be callable
         assert all(callable(x) for x in functions)
         self.functions = functions
 
-    def __call__(self, x):
+    def __call__(self, x: list[Any]) -> list[Any]:
         assert len(x) == len(self.functions)
         for i in range(len(x)):
             x[i] = self.functions[i](x[i])
@@ -41,7 +41,8 @@ class split_transformer(object):
 class pivot_transformer(object):
     """Takes the input (lists of arrays) and returns a pivot table."""
 
-    def __init__(self, val_idx=0, col_idx=3, row_idx=2, add_index_col=True):
+    def __init__(self, val_idx: int =0, col_idx:int=3,
+                 row_idx:int=2, add_index_col:bool=True) -> None:
         """Creates a pivot transformer.
         parameters are the indexes that will be used to construct pivot table.
         add_index_col specifies whether there should be an extra column for index.
@@ -51,7 +52,7 @@ class pivot_transformer(object):
         self.row_idx = row_idx
         self.add_index_col = add_index_col
 
-    def __call__(self, s):
+    def __call__(self, s: list[np.ndarray]) -> np.ndarray:
         """Pivot an object. Takes a list of lists/numpy arrays and returns the pivot."""
         array = np.stack(s, axis=1)
         rows, ridx = np.unique(array[:, self.row_idx], return_inverse=True)
@@ -65,24 +66,24 @@ class pivot_transformer(object):
 class label_binarizer_transformer(object):
     """Simple wrapper around scikit-learn's labelbinarizer."""
 
-    def __init__(self, classlist):
+    def __init__(self, classlist: list[Any]):
         self.lb = LabelBinarizer().fit(classlist)
 
-    def __call__(self, x):
+    def __call__(self, x: list[Any]) -> list[list[int]]:
         return self.lb.transform([x])
 
 
 class tensor_transformer(object):
     """The simplest transformer, just returns a tensor of the input"""
 
-    def __call__(self, x):
+    def __call__(self, x: Any) -> torch.tensor:
         return torch.as_tensor(x)
 
 
 class interpolate_transformer(object):
     """Takes 0-filled data and interpolates it."""
 
-    def __init__(self, index_col=0, interp_cols=[]):
+    def __init__(self, index_col: int =0, interp_cols: list[int] = []):
         """Creates the transformer.
         index_col is used as the point to evaluate things at.
         interp_cols are the columns that should be interpolated."""
