@@ -3,6 +3,7 @@
 import torch
 import pyarrow.parquet as pq
 import numpy as np
+from pytorch_test.transformers import *
 label_map = {
     90: "SNIa",
     67: "SNIa-91bg",
@@ -25,7 +26,48 @@ label_map = {
     # 995: "μLens-String"
 }
 
+def get_plasticc_transformer():
+    """creates and returns a sane transformer for plasticc"""
+    cols = [
+        'true_target',
+        'mjd',
+        'flux',
+        'passband',
+        'detected_bool'
+    ]
+    x_y_splitter = pandas_split_transformer([cols[1:], [cols[0]]])
+    x_transformer = sequential_transformer([  # x (input)
+        pandas_numpy_transformer(),
+        pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
+        interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
+        tensor_transformer()
+    ])
+    y_transformer = sequential_transformer([  # y (true values)
+        pandas_numpy_transformer(),
+        numpy_dtype_transformer(int),
+        label_binarizer_transformer(list(label_map.keys())),
+        tensor_transformer()
+    ])
 
+    return sequential_transformer([
+        x_y_splitter,
+        split_transformer([
+            x_transformer,
+            y_transformer
+        ])
+    ])
+plasticc_transformer = split_transformer((
+        sequential_transformer([  # x (input)
+            pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
+            interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
+            tensor_transformer()
+        ]),
+        sequential_transformer([  # y (true values)
+            label_binarizer_transformer(list(label_map.keys())),
+            tensor_transformer()
+        ])
+
+    ))
 class plasticc_dataset(torch.utils.data.Dataset):
     def __init__(self, file, transform=None, cols=None):
         """Create a plasticc dataset from the given file.

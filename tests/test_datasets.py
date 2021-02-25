@@ -16,18 +16,7 @@ def example_dataset():
 
 @pytest.fixture
 def example_transformer():
-    return transformers.split_transformer((
-        transformers.sequential_transformer([  # x (input)
-            transformers.pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
-            transformers.interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
-            transformers.tensor_transformer()
-        ]),
-        transformers.sequential_transformer([  # y (true values)
-            transformers.label_binarizer_transformer(list(datasets.label_map.keys())),
-            transformers.tensor_transformer()
-        ])
-
-    ))
+    return datasets.get_plasticc_transformer()
 
 
 @pytest.fixture
@@ -57,4 +46,6 @@ def test_dataset_cols():
 
 def test_dataset_transform(example_transformer):
     ds = datasets.plasticc_dataset(dataset_path, transform=example_transformer)
+    assert len(ds[0][1][0]) == len(datasets.label_map.keys()) # the output is one-hot.
+    assert ds[0][0].shape
     # TODO: finish this

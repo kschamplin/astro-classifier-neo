@@ -70,13 +70,14 @@ class label_binarizer_transformer(object):
         self.lb = LabelBinarizer().fit(classlist)
 
     def __call__(self, x: list[Any]) -> list[list[int]]:
+        print(x)
         return self.lb.transform([x])
 
 
 class tensor_transformer(object):
     """The simplest transformer, just returns a tensor of the input"""
 
-    def __call__(self, x: Any) -> torch.tensor:
+    def __call__(self, x: Any):
         return torch.as_tensor(x)
 
 
@@ -112,3 +113,18 @@ class pandas_split_transformer(object):
 
     def __call__(self, x: pd.Series) -> list[pd.Series]:
         return [x[s] for s in self.splits]
+
+class pandas_numpy_transformer(object):
+    "converts any pandas item to numpy array with `values`"
+
+    def __call__(self, x):
+        return x.values
+
+class numpy_dtype_transformer(object):
+    """Converts the dtype of the input ndarray"""
+
+    def __init__(self, dtype):
+        self.dtype = dtype
+
+    def __call__(self, x):
+        return x.astype(self.dtype)
