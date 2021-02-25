@@ -27,7 +27,11 @@ before_script:
 
 test:
   script:
-    - poetry run pytest
+    - poetry run pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
 
 lint:
   script:
