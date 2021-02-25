@@ -1,5 +1,6 @@
 # New astro classifier repo
-
+[![coverage report](https://gitlab.com/saji.champlin/astro-classifier-neo/badges/master/coverage.svg)](https://gitlab.com/saji.champlin/astro-classifier-neo/-/commits/master)
+  [![pipeline status](https://gitlab.com/saji.champlin/astro-classifier-neo/badges/master/pipeline.svg)](https://gitlab.com/saji.champlin/astro-classifier-neo/-/commits/master) 
 This repository contains the code + notebooks for the development of novel
 classifiers of astrophysical transients
 

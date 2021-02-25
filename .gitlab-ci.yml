@@ -25,7 +25,10 @@ before_script:
   - poetry --version
   - poetry install -vv
 
-test:
+stages:
+  - test
+pytest:
+  stage: test
   script:
     - poetry run pytest --cov=pytorch_test/ --junitxml=test.xml
     - poetry run coverage xml
@@ -36,5 +39,6 @@ test:
       junit: test.xml
 
 lint:
+  stage: test
   script:
     - poetry run flake8 -v pytorch_test tests
