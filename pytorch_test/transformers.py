@@ -83,7 +83,7 @@ class tensor_transformer(object):
 class interpolate_transformer(object):
     """Takes 0-filled data and interpolates it."""
 
-    def __init__(self, index_col: int =0, interp_cols: list[int] = []):
+    def __init__(self, index_col: int = 0, interp_cols: list[int] = []):
         """Creates the transformer.
         index_col is used as the point to evaluate things at.
         interp_cols are the columns that should be interpolated."""

@@ -32,8 +32,8 @@ def dataset():
 
 def test_sequential_transformer(add_1_transform, random):
     inputs = random.integers(5, size=(5))
-    transformer = transformers.sequential_transformer([add_1_transform])
-    assert np.all(transformer(inputs) == inputs + 1)
+    transformer = transformers.sequential_transformer([add_1_transform, add_1_transform])
+    assert np.all(transformer(inputs) == inputs + 2)
 
 
 def test_split_transformer(add_1_transform, multiply_transform, random):
@@ -60,6 +60,7 @@ def test_label_binarizer_transformer(random):
     res = np.array(transformer(inputs))
     assert res.shape == (1, 5)  # the shape is correct (5 classes)
     assert res[0, inputs] == 1  # the correct value is one (deterministic)
+    assert np.sum(res[0]) == 1  # only one index is one.
     assert np.sum(transformer([6])) == 0  # failed classes get empty arrays
 
 
@@ -76,9 +77,15 @@ def test_interpolate_transformer(random):
 def test_pandas_split_transformer(random):
     data = {
         "foo": random.integers(5),
-        "bar": 2
+        "bar": random.integers(5)
     }
     transformer = transformers.pandas_split_transformer([['foo'], ['bar']])
     res = transformer(pd.Series(data))
     assert res[0]['foo'] == data['foo']
+    assert res[1]['bar'] == data['bar']
+    # test multiple group (only works on pandas series)
+    transformer = transformers.pandas_split_transformer([['foo', 'bar'], ['bar']])
+    res = transformer(pd.Series(data))
+    assert res[0]['foo'] == data['foo']
+    assert res[0]['bar'] == data['bar']
     assert res[1]['bar'] == data['bar']
