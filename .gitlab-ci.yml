@@ -27,7 +27,7 @@ before_script:
 
 test:
   script:
-    - poetry run coverage run --source=pytorch_test -m pytest --junitxml=test.xml
+    - poetry run pytest --cov=pytorch_test/ --junitxml=test.xml
     - poetry run coverage xml
   artifacts:
     when: always
