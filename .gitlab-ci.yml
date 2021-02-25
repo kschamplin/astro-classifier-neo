@@ -27,11 +27,13 @@ before_script:
 
 test:
   script:
-    - poetry run pytest --junitxml=report.xml
+    - poetry run coverage run --source=pytorch_test -m pytest --junitxml=test.xml
+    - poetry run coverage xml
   artifacts:
     when: always
     reports:
-      junit: report.xml
+      cobertura: coverage.xml
+      junit: test.xml
 
 lint:
   script:
