@@ -23,7 +23,7 @@ def example_transformer():
             transformers.tensor_transformer()
         ]),
         transformers.sequential_transformer([  # y (true values)
-            transformers.label_binarizer_transformer(list(label_map.keys())),
+            transformers.label_binarizer_transformer(list(datasets.label_map.keys())),
             transformers.tensor_transformer()
         ])
 
@@ -56,5 +56,5 @@ def test_dataset_cols():
     assert len(ds[0].index) == 1
 
 def test_dataset_transform(example_transformer):
-    ds = datasets.plasticc_dataset(dataset_path, transformers=example_transformer)
+    ds = datasets.plasticc_dataset(dataset_path, transform=example_transformer)
     # TODO: finish this
