@@ -8,4 +8,10 @@ tmp/
 build
 htmlcov
 
+.coverage
+*.xml
+
+data/
+
 .ipynb_checkpoints
+
