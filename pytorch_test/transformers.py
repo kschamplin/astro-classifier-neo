@@ -70,7 +70,6 @@ class label_binarizer_transformer(object):
         self.lb = LabelBinarizer().fit(classlist)
 
     def __call__(self, x: list[Any]) -> list[list[int]]:
-        print(x)
         return self.lb.transform([x])
 
 
