@@ -56,18 +56,7 @@ def get_plasticc_transformer():
             y_transformer
         ])
     ])
-plasticc_transformer = split_transformer((
-        sequential_transformer([  # x (input)
-            pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
-            interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
-            tensor_transformer()
-        ]),
-        sequential_transformer([  # y (true values)
-            label_binarizer_transformer(list(label_map.keys())),
-            tensor_transformer()
-        ])
 
-    ))
 class plasticc_dataset(torch.utils.data.Dataset):
     def __init__(self, file, transform=None, cols=None):
         """Create a plasticc dataset from the given file.
@@ -89,7 +78,17 @@ class plasticc_dataset(torch.utils.data.Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        if callable(self.transform):
+        if self.transform:
             return self.transform(self.data.loc[idx])
         else:
             return self.data.loc[idx]
+
+def get_plasticc_dataloader(dataset, batch_size=10):
+    """Creates a dataloader that pads and batches the dataset."""
+    def collate(batch):
+        # batch contains a list of tuples of structure (sequence, target)
+        data = [item[0] for item in batch]
+        data = pack_sequence(data, enforce_sorted=False)
+        targets = [item[1] for item in batch]
+        return [data, targets]
+    return torch.utils.data.DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
