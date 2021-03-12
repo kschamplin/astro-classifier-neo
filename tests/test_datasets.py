@@ -49,3 +49,6 @@ def test_dataset_transform(example_transformer):
     assert len(ds[0][1][0]) == len(datasets.label_map.keys()) # the output is one-hot.
     assert ds[0][0].shape
     # TODO: finish this
+
+def test_dataloader():
+    assert True
