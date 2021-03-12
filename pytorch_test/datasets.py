@@ -4,6 +4,9 @@ import torch
 import pyarrow.parquet as pq
 import numpy as np
 from pytorch_test.transformers import *
+from torch.nn.utils.rnn import pack_sequence
+from torch.utils.data import DataLoader
+
 label_map = {
     90: "SNIa",
     67: "SNIa-91bg",
@@ -88,6 +91,7 @@ def get_plasticc_dataloader(dataset, batch_size=10):
     def collate(batch):
         # batch contains a list of tuples of structure (sequence, target)
         data = [item[0] for item in batch]
+        # pytorch has 'pack' and 'pad'. Pack is more optimal for LSTM as it reduces the # of ops
         data = pack_sequence(data, enforce_sorted=False)
         targets = [item[1] for item in batch]
         return [data, targets]
