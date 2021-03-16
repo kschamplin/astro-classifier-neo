@@ -21,7 +21,8 @@ def example_transformer():
 
 @pytest.fixture
 def example_transform_dataset(example_transformer):
-    return datasets.plasticc_dataset(dataset_path, transform=example_transformer)
+    return datasets.plasticc_dataset(
+        dataset_path, transform=example_transformer)
 
 
 def test_dataset_creation(example_dataset):
@@ -44,11 +45,14 @@ def test_dataset_cols():
     assert ds[0]['true_target'] == 88
     assert len(ds[0].index) == 1
 
+
 def test_dataset_transform(example_transformer):
     ds = datasets.plasticc_dataset(dataset_path, transform=example_transformer)
-    assert len(ds[0][1]) == len(datasets.label_map.keys()) # the output is one-hot.
+    # the output is one-hot.
+    assert len(ds[0][1]) == len(datasets.label_map.keys())
     assert ds[0][0].shape
     # TODO: finish this
+
 
 def test_dataloader():
     assert True

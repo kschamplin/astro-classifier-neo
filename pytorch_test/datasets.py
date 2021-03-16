@@ -29,6 +29,7 @@ label_map = {
     # 995: "μLens-String"
 }
 
+
 def get_plasticc_transformer():
     """creates and returns a sane transformer for plasticc"""
     cols = [
@@ -60,6 +61,7 @@ def get_plasticc_transformer():
         ])
     ])
 
+
 class plasticc_dataset(torch.utils.data.Dataset):
     def __init__(self, file, transform=None, cols=None):
         """Create a plasticc dataset from the given file.
@@ -86,13 +88,16 @@ class plasticc_dataset(torch.utils.data.Dataset):
         else:
             return self.data.loc[idx]
 
+
 def get_plasticc_dataloader(dataset, batch_size=10):
     """Creates a dataloader that pads and batches the dataset."""
     def collate(batch):
         # batch contains a list of tuples of structure (sequence, target)
         data = [item[0] for item in batch]
-        # pytorch has 'pack' and 'pad'. Pack is more optimal for LSTM as it reduces the # of ops
+        # pytorch has 'pack' and 'pad'. Pack is more optimal for LSTM as it
+        # reduces the # of ops
         data = pad_sequence(data)
         targets = torch.stack([item[1] for item in batch])
         return [data, targets]
-    return torch.utils.data.DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
+    return torch.utils.data.DataLoader(
+        dataset, batch_size=batch_size, collate_fn=collate)

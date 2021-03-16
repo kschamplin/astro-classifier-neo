@@ -7,6 +7,7 @@ import pandas as pd
 from typing import Any
 from collections.abc import Callable
 
+
 class sequential_transformer(object):
     """Applies a series of transformations on input data."""
 
@@ -19,6 +20,11 @@ class sequential_transformer(object):
         for fn in self.functions:
             x = fn(x)
         return x
+
+    def __repr__(self):
+        a = [str(x) for x in self.functions]
+        a = '\n'.join(a)
+        return f"<{self.__class__.__name__} \n[{a}]>"
 
 
 class split_transformer(object):
@@ -37,12 +43,17 @@ class split_transformer(object):
             x[i] = self.functions[i](x[i])
         return x
 
+    def __repr__(self):
+        a = [str(x) for x in self.functions]
+        a = '\n'.join(a)
+        return f"<{self.__class__.__name__} \n[{a}]>"
+
 
 class pivot_transformer(object):
     """Takes the input (lists of arrays) and returns a pivot table."""
 
-    def __init__(self, val_idx: int =0, col_idx:int=3,
-                 row_idx:int=2, add_index_col:bool=True) -> None:
+    def __init__(self, val_idx: int = 0, col_idx: int = 3,
+                 row_idx: int = 2, add_index_col: bool = True) -> None:
         """Creates a pivot transformer.
         parameters are the indexes that will be used to construct pivot table.
         add_index_col specifies whether there should be an extra column for index.
@@ -62,6 +73,9 @@ class pivot_transformer(object):
         pivot[:, 0] = array[:, self.row_idx]
         return pivot
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
 
 class label_binarizer_transformer(object):
     """Simple wrapper around scikit-learn's labelbinarizer."""
@@ -72,12 +86,18 @@ class label_binarizer_transformer(object):
     def __call__(self, x: list[Any]) -> list[list[int]]:
         return self.lb.transform([x])[0]
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
 
 class tensor_transformer(object):
     """The simplest transformer, just returns a tensor of the input"""
 
     def __call__(self, x: Any):
         return torch.as_tensor(x)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
 
 
 class interpolate_transformer(object):
@@ -102,6 +122,10 @@ class interpolate_transformer(object):
             obj[:, ax] = np.interp(x, xi, yi)
         return obj
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
+
 class pandas_split_transformer(object):
     """Splits the input pandas series into groups by name"""
 
@@ -113,11 +137,19 @@ class pandas_split_transformer(object):
     def __call__(self, x: pd.Series) -> list[pd.Series]:
         return [x[s] for s in self.splits]
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
+
 class pandas_numpy_transformer(object):
     "converts any pandas item to numpy array with `values`"
 
     def __call__(self, x):
         return x.values
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
 
 class numpy_dtype_transformer(object):
     """Converts the dtype of the input ndarray"""
@@ -127,3 +159,6 @@ class numpy_dtype_transformer(object):
 
     def __call__(self, x):
         return x.astype(self.dtype)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} dtype:{self.dtype}>"

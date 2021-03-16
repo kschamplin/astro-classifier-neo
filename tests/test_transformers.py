@@ -5,6 +5,8 @@ import torch
 import pandas as pd
 
 # some simple transformers for the container tests
+
+
 @pytest.fixture
 def add_1_transform():
     def fn(s):
@@ -32,7 +34,8 @@ def dataset():
 
 def test_sequential_transformer(add_1_transform, random):
     inputs = random.integers(5, size=(5))
-    transformer = transformers.sequential_transformer([add_1_transform, add_1_transform])
+    transformer = transformers.sequential_transformer(
+        [add_1_transform, add_1_transform])
     assert np.all(transformer(inputs) == inputs + 2)
 
 
@@ -84,7 +87,8 @@ def test_pandas_split_transformer(random):
     assert res[0]['foo'] == data['foo']
     assert res[1]['bar'] == data['bar']
     # test multiple group (only works on pandas series)
-    transformer = transformers.pandas_split_transformer([['foo', 'bar'], ['bar']])
+    transformer = transformers.pandas_split_transformer(
+        [['foo', 'bar'], ['bar']])
     res = transformer(pd.Series(data))
     assert res[0]['foo'] == data['foo']
     assert res[0]['bar'] == data['bar']
