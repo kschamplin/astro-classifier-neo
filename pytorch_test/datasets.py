@@ -4,7 +4,7 @@ import torch
 import pyarrow.parquet as pq
 import numpy as np
 from pytorch_test.transformers import *
-from torch.nn.utils.rnn import pack_sequence
+from torch.nn.utils.rnn import pack_sequence, pad_sequence
 from torch.utils.data import DataLoader
 
 label_map = {
@@ -92,7 +92,7 @@ def get_plasticc_dataloader(dataset, batch_size=10):
         # batch contains a list of tuples of structure (sequence, target)
         data = [item[0] for item in batch]
         # pytorch has 'pack' and 'pad'. Pack is more optimal for LSTM as it reduces the # of ops
-        data = pack_sequence(data, enforce_sorted=False)
-        targets = [item[1] for item in batch]
+        data = pad_sequence(data)
+        targets = torch.stack([item[1] for item in batch])
         return [data, targets]
     return torch.utils.data.DataLoader(dataset, batch_size=batch_size, collate_fn=collate)
