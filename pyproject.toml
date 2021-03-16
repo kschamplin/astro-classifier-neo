@@ -15,10 +15,10 @@ scikit-learn = "^0.24.1"
 astropy = "^4.2"
 tqdm = "^4.57.0"
 matplotlib = "^3.3.4"
+tensorboard = "^2.4.1"
 
 [tool.poetry.dev-dependencies]
 ipykernel = "^5.5.0"
-tensorboard = "^2.4.1"
 pytest = "^6.2.2"
 flake8 = "^3.8.4"
 autopep8 = "^1.5.5"
