@@ -23,7 +23,7 @@ class DoubleLSTMNet(nn.Module):
         # pad the packed sequence.
         # x = nn.utils.rnn.pad_packed_sequence(x)[0]
         x = self.dense(x)
-        x = F.softmax(x)
+        x = F.softmax(x,dim=2)
         return x, hidden
 
 
