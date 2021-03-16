@@ -46,7 +46,7 @@ def test_dataset_cols():
 
 def test_dataset_transform(example_transformer):
     ds = datasets.plasticc_dataset(dataset_path, transform=example_transformer)
-    assert len(ds[0][1][0]) == len(datasets.label_map.keys()) # the output is one-hot.
+    assert len(ds[0][1]) == len(datasets.label_map.keys()) # the output is one-hot.
     assert ds[0][0].shape
     # TODO: finish this
 
