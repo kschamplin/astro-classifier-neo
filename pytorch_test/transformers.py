@@ -70,7 +70,7 @@ class label_binarizer_transformer(object):
         self.lb = LabelBinarizer().fit(classlist)
 
     def __call__(self, x: list[Any]) -> list[list[int]]:
-        return self.lb.transform([x])
+        return self.lb.transform([x])[0]
 
 
 class tensor_transformer(object):

@@ -58,9 +58,9 @@ def test_label_binarizer_transformer(random):
     inputs = random.integers(5)
     transformer = transformers.label_binarizer_transformer(range(5))
     res = np.array(transformer(inputs))
-    assert res.shape == (1, 5)  # the shape is correct (5 classes)
-    assert res[0, inputs] == 1  # the correct value is one (deterministic)
-    assert np.sum(res[0]) == 1  # only one index is one.
+    assert res.shape == (5,)  # the shape is correct (5 classes)
+    assert res[inputs] == 1  # the correct value is one (deterministic)
+    assert np.sum(res) == 1  # only one index is one.
     assert np.sum(transformer([6])) == 0  # failed classes get empty arrays
 
 
