@@ -162,3 +162,19 @@ class numpy_dtype_transformer(object):
 
     def __repr__(self):
         return f"<{self.__class__.__name__} dtype:{self.dtype}>"
+
+class null_transformer(object):
+    def __call__(self, x):
+        return x # do nothing.
+
+class diff_transformer(object):
+    """Takes column index as argument and diff-encodes it"""
+
+    def __init__(self, cols, use_names=False):
+        self.cols = cols
+        self.use_names = use_names
+    
+    def __call__(self, x):
+        # take the 
+        x[self.cols] = np.diff(x[self.cols], prepend=[0])
+        return x

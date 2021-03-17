@@ -39,10 +39,11 @@ def get_plasticc_transformer():
         'passband',
         'detected_bool'
     ]
-    x_y_splitter = pandas_split_transformer([cols[1:], [cols[0]]])
+    x_y_splitter = pandas_split_transformer([cols[1:], [cols[0]]]) # split true target from the rest.
     x_transformer = sequential_transformer([  # x (input)
         pandas_numpy_transformer(),
         pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
+        diff_transformer(0),
         interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
         tensor_transformer()
     ])
