@@ -31,6 +31,7 @@ pytest:
   stage: test
   script:
     - poetry run pytest --cov=pytorch_test/ --junitxml=test.xml
+    - poetry run coverage report
     - poetry run coverage xml
   artifacts:
     when: always
