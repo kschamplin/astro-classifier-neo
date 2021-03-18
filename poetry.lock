@@ -2,7 +2,7 @@
 name = "absl-py"
 version = "0.12.0"
 description = "Abseil Python Common Libraries, see https://github.com/abseil/abseil-py."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -80,7 +80,7 @@ python-versions = "*"
 name = "cachetools"
 version = "4.2.1"
 description = "Extensible memoizing collections and decorators"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "~=3.5"
 
@@ -166,7 +166,7 @@ pyflakes = ">=2.2.0,<2.3.0"
 name = "google-auth"
 version = "1.27.1"
 description = "Google Authentication Library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
 
@@ -184,7 +184,7 @@ pyopenssl = ["pyopenssl (>=20.0.0)"]
 name = "google-auth-oauthlib"
 version = "0.4.3"
 description = "Google Authentication Library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -199,7 +199,7 @@ tool = ["click (>=6.0.0)"]
 name = "grpcio"
 version = "1.36.1"
 description = "HTTP/2-based RPC framework"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -348,7 +348,7 @@ python-versions = ">=3.6"
 name = "markdown"
 version = "3.3.4"
 description = "Python implementation of Markdown."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -415,7 +415,7 @@ python-versions = ">=3.7"
 name = "oauthlib"
 version = "3.1.0"
 description = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -516,7 +516,7 @@ wcwidth = "*"
 name = "protobuf"
 version = "3.15.6"
 description = "Protocol Buffers"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -554,7 +554,7 @@ numpy = ">=1.16.6"
 name = "pyasn1"
 version = "0.4.8"
 description = "ASN.1 types and codecs"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -562,7 +562,7 @@ python-versions = "*"
 name = "pyasn1-modules"
 version = "0.2.8"
 description = "A collection of ASN.1-based protocols modules."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -721,7 +721,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 name = "requests-oauthlib"
 version = "1.3.0"
 description = "OAuthlib authentication support for Requests."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -736,7 +736,7 @@ rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
 name = "rsa"
 version = "4.7.2"
 description = "Pure-Python RSA implementation"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5, <4"
 
@@ -786,7 +786,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "tensorboard"
 version = "2.4.1"
 description = "TensorBoard lets you watch Tensors Flow"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">= 2.7, != 3.0.*, != 3.1.*"
 
@@ -807,7 +807,7 @@ werkzeug = ">=0.11.15"
 name = "tensorboard-plugin-wit"
 version = "1.8.0"
 description = "What-If Tool TensorBoard plugin."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -904,6 +904,17 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
+name = "vulture"
+version = "2.3"
+description = "Find dead code"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+toml = "*"
+
+[[package]]
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -915,7 +926,7 @@ python-versions = "*"
 name = "werkzeug"
 version = "1.0.1"
 description = "The comprehensive WSGI web application library."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -926,7 +937,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "03270d45763135207345b401512a946290b78283fca0a2e84efd66982abf3674"
+content-hash = "3a0288218f6aa40caa54645f9247608815ca2f3e3f1116c39e061f309ffcb72e"
 
 [metadata.files]
 absl-py = [
@@ -1777,6 +1788,10 @@ typing-extensions = [
 urllib3 = [
     {file = "urllib3-1.26.3-py2.py3-none-any.whl", hash = "sha256:1b465e494e3e0d8939b50680403e3aedaa2bc434b7d5af64dfd3c958d7f5ae80"},
     {file = "urllib3-1.26.3.tar.gz", hash = "sha256:de3eedaad74a2683334e282005cd8d7f22f4d55fa690a2a1020a416cb0a47e73"},
+]
+vulture = [
+    {file = "vulture-2.3-py2.py3-none-any.whl", hash = "sha256:f39de5e6f1df1f70c3b50da54f1c8d494159e9ca3d01a9b89eac929600591703"},
+    {file = "vulture-2.3.tar.gz", hash = "sha256:03d5a62bcbe9ceb9a9b0575f42d71a2d414070229f2e6f95fa6e7c71aaaed967"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
