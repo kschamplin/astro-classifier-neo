@@ -1,9 +1,6 @@
 import pytest
 import pytorch_test.datasets as datasets
-import pytorch_test.transformers as transformers
 import pyarrow.parquet as pq
-import pandas as pd
-import torch
 
 
 dataset_path = "plasticc_train_lightcurves.parquet"

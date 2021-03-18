@@ -2,9 +2,8 @@
 
 import torch
 import pyarrow.parquet as pq
-import numpy as np
-from pytorch_test.transformers import *
-from torch.nn.utils.rnn import pack_sequence, pad_sequence
+import pytorch_test.transformers as tf
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
 
 label_map = {
@@ -39,24 +38,25 @@ def get_plasticc_transformer():
         'passband',
         'detected_bool'
     ]
-    x_y_splitter = pandas_split_transformer([cols[1:], [cols[0]]]) # split true target from the rest.
-    x_transformer = sequential_transformer([  # x (input)
-        pandas_numpy_transformer(),
-        pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
-        diff_transformer(0),
-        interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
-        tensor_transformer()
+    # split true target from the rest.
+    x_y_splitter = tf.pandas_split_transformer([cols[1:], [cols[0]]])
+    x_transformer = tf.sequential_transformer([  # x (input)
+        tf.pandas_numpy_transformer(),
+        tf.pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
+        tf.diff_transformer(0),
+        tf.interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
+        tf.tensor_transformer()
     ])
-    y_transformer = sequential_transformer([  # y (true values)
-        pandas_numpy_transformer(),
-        numpy_dtype_transformer(int),
-        label_binarizer_transformer(list(label_map.keys())),
-        tensor_transformer()
+    y_transformer = tf.sequential_transformer([  # y (true values)
+        tf.pandas_numpy_transformer(),
+        tf.numpy_dtype_transformer(int),
+        tf.label_binarizer_transformer(list(label_map.keys())),
+        tf.tensor_transformer()
     ])
 
-    return sequential_transformer([
+    return tf.sequential_transformer([
         x_y_splitter,
-        split_transformer([
+        tf.split_transformer([
             x_transformer,
             y_transformer
         ])
@@ -66,8 +66,8 @@ def get_plasticc_transformer():
 class plasticc_dataset(torch.utils.data.Dataset):
     def __init__(self, file, transform=None, cols=None):
         """Create a plasticc dataset from the given file.
-        transforms argument specifies a transformer that will be called when data
-        is accessed."""
+        transforms argument specifies a transformer that will be
+        called when data is accessed."""
         # load the file
         if cols is None:
             cols = [
@@ -100,5 +100,5 @@ def get_plasticc_dataloader(dataset, batch_size=10):
         data = pad_sequence(data)
         targets = torch.stack([item[1] for item in batch])
         return [data, targets]
-    return torch.utils.data.DataLoader(
+    return DataLoader(
         dataset, batch_size=batch_size, collate_fn=collate)

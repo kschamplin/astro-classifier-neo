@@ -3,7 +3,7 @@
 from tqdm import tqdm
 import requests
 import hashlib
-from pathlib import *
+from pathlib import Path
 import shutil
 import gzip
 blacklist = [

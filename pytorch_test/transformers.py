@@ -28,9 +28,9 @@ class sequential_transformer(object):
 
 
 class split_transformer(object):
-    """A transformer that splits the input (which should be some map-type object like a list)
-    among its stored transformers. Useful for applying different transformations to different parts
-    of the data."""
+    """A transformer that splits the input (which should be some map-type
+    object like a list) among its stored transformers. Useful for applying
+    different transformations to different parts of the data."""
 
     def __init__(self, functions: list[Callable[Any, Any]]) -> None:
         # everything in here should be callable
@@ -56,15 +56,16 @@ class pivot_transformer(object):
                  row_idx: int = 2, add_index_col: bool = True) -> None:
         """Creates a pivot transformer.
         parameters are the indexes that will be used to construct pivot table.
-        add_index_col specifies whether there should be an extra column for index.
-        Expects things to be shaped like (rows,cols)."""
+        add_index_col specifies whether there should be an extra column for
+        index. Expects things to be shaped like (rows,cols)."""
         self.val_idx = val_idx
         self.col_idx = col_idx
         self.row_idx = row_idx
         self.add_index_col = add_index_col
 
     def __call__(self, s: list[np.ndarray]) -> np.ndarray:
-        """Pivot an object. Takes a list of lists/numpy arrays and returns the pivot."""
+        """Pivot an object.
+        Takes a list of lists/numpy arrays and returns the pivot."""
         array = np.stack(s, axis=1)
         rows, ridx = np.unique(array[:, self.row_idx], return_inverse=True)
         cols, cidx = np.unique(array[:, self.col_idx], return_inverse=True)
@@ -112,7 +113,8 @@ class interpolate_transformer(object):
 
     def __call__(self, obj):
         """Interpolates the data"""
-        x = obj[:, self.index_col]  # store every timestamp to know what to resample to.
+        x = obj[:, self.index_col]
+        # store every timestamp to know what to resample to.
         for ax in self.interp_cols:
             # get non-zero values and times
             # the indicies where we have values
@@ -163,9 +165,11 @@ class numpy_dtype_transformer(object):
     def __repr__(self):
         return f"<{self.__class__.__name__} dtype:{self.dtype}>"
 
+
 class null_transformer(object):
     def __call__(self, x):
-        return x # do nothing.
+        return x  # do nothing.
+
 
 class diff_transformer(object):
     """Takes column index as argument and diff-encodes it"""
@@ -173,8 +177,8 @@ class diff_transformer(object):
     def __init__(self, cols, use_names=False):
         self.cols = cols
         self.use_names = use_names
-    
+
     def __call__(self, x):
-        # take the 
+        # take the
         x[self.cols] = np.diff(x[self.cols], prepend=[0])
         return x

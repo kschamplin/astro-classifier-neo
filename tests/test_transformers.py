@@ -75,6 +75,7 @@ def test_interpolate_transformer(random):
     ])
     transformer = transformers.interpolate_transformer(interp_cols=[1])
     res = transformer(inputs)
+    assert res
 
 
 def test_pandas_split_transformer(random):

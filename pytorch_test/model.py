@@ -11,7 +11,9 @@ class DoubleLSTMNet(nn.Module):
         super().__init__()
         # primary lstm layer)
         # 7 features, 200 hidden layers, 2 stacked.
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers).to(device)
+        if device is None:
+            device = torch.device('cpu')
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers)
         self.dense = nn.Linear(hidden_size, num_classes).to(device)
         self.batch_size = batch_size
         self.device = device
