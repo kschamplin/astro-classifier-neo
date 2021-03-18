@@ -8,9 +8,15 @@ tmp/
 build
 htmlcov
 
+# coverage and reports
 .coverage
 *.xml
 
+# Data and model run logs
 data/
 runs/
 .ipynb_checkpoints
+
+# caches
+.mypy_cache/
+.pytest_cache/
