@@ -12,6 +12,6 @@ htmlcov
 *.xml
 
 data/
-
+runs/
 .ipynb_checkpoints
 
