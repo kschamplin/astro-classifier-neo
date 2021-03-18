@@ -1,8 +1,9 @@
-import pytest
-import pytorch_test.transformers as transformers
 import numpy as np
-import torch
 import pandas as pd
+import pytest
+import torch
+
+import pytorch_test.transformers as transformers
 
 # some simple transformers for the container tests
 

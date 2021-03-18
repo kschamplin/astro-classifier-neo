@@ -1,10 +1,11 @@
+from pathlib import Path
+
 import torch
 import torch.optim
-from pytorch_test import datasets
-from pytorch_test import model
-from pathlib import Path
-from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
+
+from pytorch_test import datasets, model
 
 w = SummaryWriter()
 

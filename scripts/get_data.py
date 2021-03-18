@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # downloads plasticc data and optionally preprocesses it.
-from tqdm import tqdm
-import requests
-import hashlib
-from pathlib import Path
-import shutil
 import gzip
+import hashlib
+import shutil
+from pathlib import Path
+
+import requests
+from tqdm import tqdm
+
 blacklist = [
     "plasticc_modelpar.tar.gz"
 ]
