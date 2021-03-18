@@ -8,7 +8,7 @@ dataset_path = "plasticc_train_lightcurves.parquet"
 
 @pytest.fixture
 def example_dataset():
-    return datasets.plasticc_dataset(dataset_path)
+    return datasets.PlasticcDataset(dataset_path)
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def example_transformer():
 
 @pytest.fixture
 def example_transform_dataset(example_transformer):
-    return datasets.plasticc_dataset(
+    return datasets.PlasticcDataset(
         dataset_path, transform=example_transformer)
 
 
@@ -36,7 +36,7 @@ def test_dataset_access(example_dataset):
 
 
 def test_dataset_cols():
-    ds = datasets.plasticc_dataset(dataset_path, cols=['true_target'])
+    ds = datasets.PlasticcDataset(dataset_path, cols=['true_target'])
 
     # invariant: accessing the first + checking the length guarentees accuracy.
     assert ds[0]['true_target'] == 88
@@ -44,7 +44,7 @@ def test_dataset_cols():
 
 
 def test_dataset_transform(example_transformer):
-    ds = datasets.plasticc_dataset(dataset_path, transform=example_transformer)
+    ds = datasets.PlasticcDataset(dataset_path, transform=example_transformer)
     # the output is one-hot.
     assert len(ds[0][1]) == len(datasets.label_map.keys())
     assert ds[0][0].shape

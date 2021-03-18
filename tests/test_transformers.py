@@ -34,14 +34,14 @@ def dataset():
 
 def test_sequential_transformer(add_1_transform, random):
     inputs = random.integers(5, size=(5))
-    transformer = transformers.sequential_transformer(
+    transformer = transformers.SequentialTransformer(
         [add_1_transform, add_1_transform])
     assert np.all(transformer(inputs) == inputs + 2)
 
 
 def test_split_transformer(add_1_transform, multiply_transform, random):
     inputs = random.integers(5, size=(2, 3))
-    transformer = transformers.split_transformer([
+    transformer = transformers.SplitTransformer([
         add_1_transform,
         multiply_transform
     ])
@@ -52,14 +52,14 @@ def test_split_transformer(add_1_transform, multiply_transform, random):
 
 def test_tensor_transformer(random):
     inputs = random.integers(3)
-    transformer = transformers.tensor_transformer()
+    transformer = transformers.TensorTransformer()
     res = transformer(inputs)
     assert torch.equal(res, torch.as_tensor(inputs))
 
 
 def test_label_binarizer_transformer(random):
     inputs = random.integers(5)
-    transformer = transformers.label_binarizer_transformer(range(5))
+    transformer = transformers.LabelBinarizerTransformer(range(5))
     res = np.array(transformer(inputs))
     assert res.shape == (5,)  # the shape is correct (5 classes)
     assert res[inputs] == 1  # the correct value is one (deterministic)
@@ -73,7 +73,7 @@ def test_interpolate_transformer(random):
         np.arange(10),  # "index" column
         random.random(size=(10)) * mask  # random values with some masked.
     ])
-    transformer = transformers.interpolate_transformer(interp_cols=[1])
+    transformer = transformers.InterpolateTransformer(interp_cols=[1])
     res = transformer(inputs)
     assert res is not None
 
@@ -83,12 +83,12 @@ def test_pandas_split_transformer(random):
         "foo": random.integers(5),
         "bar": random.integers(5)
     }
-    transformer = transformers.pandas_split_transformer([['foo'], ['bar']])
+    transformer = transformers.PandasSplitTransformer([['foo'], ['bar']])
     res = transformer(pd.Series(data))
     assert res[0]['foo'] == data['foo']
     assert res[1]['bar'] == data['bar']
     # test multiple group (only works on pandas series)
-    transformer = transformers.pandas_split_transformer(
+    transformer = transformers.PandasSplitTransformer(
         [['foo', 'bar'], ['bar']])
     res = transformer(pd.Series(data))
     assert res[0]['foo'] == data['foo']
