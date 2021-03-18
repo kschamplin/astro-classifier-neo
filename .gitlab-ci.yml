@@ -32,7 +32,6 @@ pytest:
   script:
     - poetry run pytest --cov=pytorch_test/ --junitxml=test.xml
     - poetry run coverage report
-    - poetry run coverage xml
   artifacts:
     when: always
     reports:
@@ -42,4 +41,4 @@ pytest:
 lint:
   stage: test
   script:
-    - poetry run flake8 -v pytorch_test tests
+    - poetry run pylint pytorch_test

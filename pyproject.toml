@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "pytorch-test"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Library to classify astrophysical transients"
+authors = ["Saji Champlin <saji@saji.dev>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -20,13 +20,25 @@ tensorboard = "^2.4.1"
 [tool.poetry.dev-dependencies]
 ipykernel = "^5.5.0"
 pytest = "^6.2.2"
-flake8 = "^3.8.4"
 autopep8 = "^1.5.5"
 mypy = "^0.812"
-coverage = "^5.4"
+coverage = {extras = ["toml"], version = "^5.5"}
 pytest-cov = "^2.11.1"
 vulture = "^2.3"
+pylint = "^2.7.2"
+rope = "^0.18.0"
+isort = "^5.7.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+[virtualenvs]
+in-project = true
+
+[tool.pylint.TYPECHECK]
+generated-members=["numpy.*","torch.*"]
+disable = ["C0103"]
+fail-under = "9.0"
+
+[tool.coverage.run]
+relative_files = True

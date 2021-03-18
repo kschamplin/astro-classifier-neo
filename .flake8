@@ -1,3 +1,0 @@
-[flake8]
-exclude = .git,.ipynb_checkpoints
-ignore = F405
