@@ -1,14 +1,16 @@
-# Basic data transformers for constructing an input pipeline.
+"""Basic data transformers for quickly constructing an input pipeline.
+Contains modules that allow for flexible pipelining in Pandas, Numpy, or PyTorch."""
 # Copyright (C) Saji Champlin. All rights reserved.
-import numpy as np
-from sklearn.preprocessing import LabelBinarizer
-import torch
-import pandas as pd
-from typing import Any
 from collections.abc import Callable
+from typing import Any
+
+import numpy as np
+import pandas as pd
+import torch
+from sklearn.preprocessing import LabelBinarizer
 
 
-class sequential_transformer(object):
+class SequentialTransformer():
     """Applies a series of transformations on input data."""
 
     def __init__(self, functions: list[Callable[Any, Any]]) -> None:
@@ -27,9 +29,9 @@ class sequential_transformer(object):
         return f"<{self.__class__.__name__} \n[{a}]>"
 
 
-class split_transformer(object):
+class SplitTransformer():
     """A transformer that splits the input (which should be some map-type
-    object like a list) among its stored transformers. Useful for applying
+     like a list) among its stored transformers. Useful for applying
     different transformations to different parts of the data."""
 
     def __init__(self, functions: list[Callable[Any, Any]]) -> None:
@@ -39,8 +41,7 @@ class split_transformer(object):
 
     def __call__(self, x: list[Any]) -> list[Any]:
         assert len(x) == len(self.functions)
-        for i in range(len(x)):
-            x[i] = self.functions[i](x[i])
+        x = [self.functions[i](v) for i, v in enumerate(x)]
         return x
 
     def __repr__(self):
@@ -49,7 +50,7 @@ class split_transformer(object):
         return f"<{self.__class__.__name__} \n[{a}]>"
 
 
-class pivot_transformer(object):
+class PivotTransformer():
     """Takes the input (lists of arrays) and returns a pivot table."""
 
     def __init__(self, val_idx: int = 0, col_idx: int = 3,
@@ -64,7 +65,7 @@ class pivot_transformer(object):
         self.add_index_col = add_index_col
 
     def __call__(self, s: list[np.ndarray]) -> np.ndarray:
-        """Pivot an object.
+        """Pivot an .
         Takes a list of lists/numpy arrays and returns the pivot."""
         array = np.stack(s, axis=1)
         rows, ridx = np.unique(array[:, self.row_idx], return_inverse=True)
@@ -78,7 +79,7 @@ class pivot_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class label_binarizer_transformer(object):
+class LabelBinarizerTransformer():
     """Simple wrapper around scikit-learn's labelbinarizer."""
 
     def __init__(self, classlist: list[Any]):
@@ -91,7 +92,7 @@ class label_binarizer_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class tensor_transformer(object):
+class TensorTransformer():
     """The simplest transformer, just returns a tensor of the input"""
 
     def __call__(self, x: Any):
@@ -101,7 +102,7 @@ class tensor_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class interpolate_transformer(object):
+class InterpolateTransformer():
     """Takes 0-filled data and interpolates it."""
 
     def __init__(self, index_col: int = 0, interp_cols: list[int] = []):
@@ -128,7 +129,7 @@ class interpolate_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class pandas_split_transformer(object):
+class PandasSplitTransformer():
     """Splits the input pandas series into groups by name"""
 
     def __init__(self, splits: list[list[Any]]):
@@ -143,7 +144,7 @@ class pandas_split_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class pandas_numpy_transformer(object):
+class PandasNumpyTransformer():
     "converts any pandas item to numpy array with `values`"
 
     def __call__(self, x):
@@ -153,7 +154,7 @@ class pandas_numpy_transformer(object):
         return f"<{self.__class__.__name__}>"
 
 
-class numpy_dtype_transformer(object):
+class NumpyDtypeTransformer():
     """Converts the dtype of the input ndarray"""
 
     def __init__(self, dtype):
@@ -166,12 +167,12 @@ class numpy_dtype_transformer(object):
         return f"<{self.__class__.__name__} dtype:{self.dtype}>"
 
 
-class null_transformer(object):
+class NullTransformer():
     def __call__(self, x):
         return x  # do nothing.
 
 
-class diff_transformer(object):
+class DiffTransformer():
     """Takes column index as argument and diff-encodes it"""
 
     def __init__(self, cols, use_names=False):

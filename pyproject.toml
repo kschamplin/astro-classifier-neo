@@ -41,4 +41,4 @@ disable = ["C0103"]
 fail-under = "9.0"
 
 [tool.coverage.run]
-relative_files = True
+relative_files = "True"

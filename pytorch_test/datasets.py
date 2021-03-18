@@ -1,10 +1,11 @@
-# Dataset classes for plasticc/others
-
-import torch
+"""Datasets and loaders for various astronomical transient surveys.
+At the moment it only supports PLAsTiCC."""
 import pyarrow.parquet as pq
-import pytorch_test.transformers as tf
+import torch
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
+
+import pytorch_test.transformers as tf
 
 label_map = {
     90: "SNIa",
@@ -39,31 +40,34 @@ def get_plasticc_transformer():
         'detected_bool'
     ]
     # split true target from the rest.
-    x_y_splitter = tf.pandas_split_transformer([cols[1:], [cols[0]]])
-    x_transformer = tf.sequential_transformer([  # x (input)
-        tf.pandas_numpy_transformer(),
-        tf.pivot_transformer(val_idx=1, col_idx=2, row_idx=0),
-        tf.diff_transformer(0),
-        tf.interpolate_transformer(interp_cols=[1, 2, 3, 4, 5]),
-        tf.tensor_transformer()
+    x_y_splitter = tf.PandasSplitTransformer([cols[1:], [cols[0]]])
+    x_transformer = tf.SequentialTransformer([  # x (input)
+        tf.PandasNumpyTransformer(),
+        tf.PivotTransformer(val_idx=1, col_idx=2, row_idx=0),
+        tf.DiffTransformer(0),
+        tf.InterpolateTransformer(interp_cols=[1, 2, 3, 4, 5]),
+        tf.TensorTransformer()
     ])
-    y_transformer = tf.sequential_transformer([  # y (true values)
-        tf.pandas_numpy_transformer(),
-        tf.numpy_dtype_transformer(int),
-        tf.label_binarizer_transformer(list(label_map.keys())),
-        tf.tensor_transformer()
+    y_transformer = tf.SequentialTransformer([  # y (true values)
+        tf.PandasNumpyTransformer(),
+        tf.NumpyDtypeTransformer(int),
+        tf.LabelBinarizerTransformer(list(label_map.keys())),
+        tf.TensorTransformer()
     ])
 
-    return tf.sequential_transformer([
+    return tf.SequentialTransformer([
         x_y_splitter,
-        tf.split_transformer([
+        tf.SplitTransformer([
             x_transformer,
             y_transformer
         ])
     ])
 
 
-class plasticc_dataset(torch.utils.data.Dataset):
+class PlasticcDataset(torch.utils.data.Dataset):
+    """Class representing a plasticc dataset. Expected to be
+    from a parquet file."""
+
     def __init__(self, file, transform=None, cols=None):
         """Create a plasticc dataset from the given file.
         transforms argument specifies a transformer that will be
@@ -86,8 +90,7 @@ class plasticc_dataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         if self.transform:
             return self.transform(self.data.loc[idx])
-        else:
-            return self.data.loc[idx]
+        return self.data.loc[idx]
 
 
 def get_plasticc_dataloader(dataset, batch_size=10):
