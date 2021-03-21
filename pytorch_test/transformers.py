@@ -171,6 +171,9 @@ class NullTransformer():
     def __call__(self, x):
         return x  # do nothing.
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
+
 
 class DiffTransformer():
     """Takes column index as argument and diff-encodes it"""
@@ -183,3 +186,6 @@ class DiffTransformer():
         # take the
         x[self.cols] = np.diff(x[self.cols], prepend=[0])
         return x
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} column: {self.cols}>"
