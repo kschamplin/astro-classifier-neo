@@ -20,3 +20,6 @@ runs/
 # caches
 .mypy_cache/
 .pytest_cache/
+.vscode/
+lightning_logs/
+data/
