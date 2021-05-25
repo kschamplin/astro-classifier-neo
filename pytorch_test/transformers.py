@@ -184,7 +184,7 @@ class DiffTransformer():
 
     def __call__(self, x):
         # take the
-        x[self.cols] = np.diff(x[self.cols], prepend=[0])
+        x[:, self.cols] = np.diff(x[:, self.cols], prepend=x[0, self.cols])
         return x
 
     def __repr__(self):

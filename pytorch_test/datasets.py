@@ -44,7 +44,7 @@ def get_plasticc_transformer():
     x_transformer = tf.SequentialTransformer([  # x (input)
         tf.PandasNumpyTransformer(),
         tf.PivotTransformer(val_idx=1, col_idx=2, row_idx=0),
-        tf.DiffTransformer(0),
+       # tf.DiffTransformer(0),
         tf.InterpolateTransformer(interp_cols=[1, 2, 3, 4, 5]),
         tf.TensorTransformer()
     ])

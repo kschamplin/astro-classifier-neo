@@ -3,9 +3,9 @@ as well as useful loss/optimization utilities"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import pytorch_lightning as pl
 
-
-class DoubleLSTMNet(nn.Module):
+class DoubleLSTMNet(pl.LightningModule):
     """A simple chained LSTM network that tries to classify curves
     at every timestep"""
 
@@ -14,24 +14,20 @@ class DoubleLSTMNet(nn.Module):
         super().__init__()
         # primary lstm layer)
         # 7 features, 200 hidden layers, 2 stacked.
-        if device is None:
-            device = torch.device('cpu')
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers)
-        self.dense = nn.Linear(hidden_size, num_classes).to(device)
+        self.dense = nn.Linear(hidden_size, num_classes)
         self.batch_size = batch_size
-        self.device = device
-
-    def init_hidden(self, batch_size=10):
+    def init_hidden(self, bs):
         """Creates the initial lstm state given a batch size. Can be overwritten
         for more performance."""
         hidden_0 = torch.zeros(
             self.lstm.num_layers,
-            batch_size,
-            self.lstm.hidden_size)
+            bs,
+            self.lstm.hidden_size).to(self.device)
         cell_0 = torch.zeros(
             self.lstm.num_layers,
-            batch_size,
-            self.lstm.hidden_size)
+            bs,
+            self.lstm.hidden_size).to(self.device)
         return (hidden_0, cell_0)
 
     def forward(self, tensor, lstm_state):
@@ -42,8 +38,23 @@ class DoubleLSTMNet(nn.Module):
         tensor = self.dense(tensor)
         tensor = F.softmax(tensor, dim=2)
         return tensor, lstm_state
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
+    
+    def training_step(self, batch, batch_idx):
 
+        x,y = batch
+        h0, c0 = self.init_hidden(x.shape[1])
+        y_hat, _ = self(x, (h0,c0))
+        y_hat = y_hat[-1,:]
+        # loss = multi_log_loss(y_hat, y)
+        loss = cross_entropy_one_hot(y_hat, y)
+        return loss
 
 def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""
     return (-(pred + 1e-24).log() * target).sum(dim=1).mean()
+
+def cross_entropy_one_hot(input, target):
+    _, labels = target.max(dim=1)
+    return nn.CrossEntropyLoss()(input, labels)
