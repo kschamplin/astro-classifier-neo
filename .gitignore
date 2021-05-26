@@ -22,7 +22,7 @@ runs/
 .pytest_cache/
 .vscode/
 lightning_logs/
-data/
+data
 tb_logs/
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
