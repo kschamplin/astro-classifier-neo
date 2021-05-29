@@ -2,6 +2,7 @@
 as well as useful loss/optimization utilities"""
 import pytorch_lightning as pl
 import torch
+import torchcde
 import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_test.datasets import class_weights_target_list
@@ -61,5 +62,34 @@ def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""
     return (-(pred + 1e-24).log() * target).sum(dim=1).mean()
 
-def accuracy():
-    pass
+
+class NCDE(pl.LightningModule):
+    """Neural Controlled Differential Equation model for classification on irregular, multi-modal time series"""
+
+    def __init__(self, input_channels=7, hidden_channels=128, output_channels=14):
+        super().__init__()
+
+        self.initial = nn.Linear(input_channels, hidden_channels)
+        self.model = nn.Linear(hidden_channels, hidden_channels * input_channels)
+        self.output = nn.Linear(hidden_channels, output_channels)
+
+        self.loss = nn.CrossEntropyLoss(weight=class_weights_target_list)
+
+    def forward(self, x):
+
+        # NOTE: x should be the natural cubic spline coefficients. Look into datasets.py for how to generate these.
+        X = torchcde.NaturalCubicSpline(x)
+        X0 = X.evaluate(X.interval[0])
+        z0 = self.initial(X0)
+        zt = torchcde.cdeint(X=X, func=self.func, z0=z0, t=X.interval)
+        
+        return self.output(zt[...,-1,:])
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        pred_y = self(x).squeeze(-1)
+        loss = self.loss(pred_y, y)
+        return loss
