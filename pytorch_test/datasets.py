@@ -70,7 +70,7 @@ def get_plasticc_transformer():
         tf.PandasNumpyTransformer(),
         tf.PivotTransformer(val_idx=1, col_idx=2, row_idx=0),
         tf.DiffTransformer(0),
-        tf.InterpolateTransformer(interp_cols=[1, 2, 3, 4, 5]),
+        #tf.InterpolateTransformer(interp_cols=[1, 2, 3, 4, 5]),
         tf.TensorTransformer()
     ])
     y_transformer = tf.SequentialTransformer([  # y (true values)
@@ -131,3 +131,4 @@ def get_plasticc_dataloader(dataset, batch_size=10, **kwargs):
         return [data, targets]
     return DataLoader(
         dataset, batch_size=batch_size, collate_fn=collate, **kwargs)
+
