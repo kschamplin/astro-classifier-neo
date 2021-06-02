@@ -6,11 +6,7 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
 
 import pytorch_test.transformers as tf
-# The way the data is structured is rather unfortunate - not continuous, and wide range. Thus, we will
-# define two more ways of representing classes - one-hot and target index.
-# one-hot is the output of the model, it looks like [0,0,0,1] where the index of 1 is the chosen class.
-# target index in the prev. case is 4, since the idx max is 4.
-# finally, we have the string name. we will define functions to convert all between.
+
 label_map = {
     90: "SNIa",
     67: "SNIa-91bg",
@@ -48,6 +44,14 @@ class_weights = {
     993: 22.90596221959858,
     994: 189.18917601170162
 }
+passband_map = {
+    0: 'u',
+    1: 'g',
+    2: 'r',
+    3: 'i',
+    4: 'z',
+    5: 'y'
+}
 # we define a dict of class_id: target mappings using a cheap hack.
 
 label_targets = list(label_map.keys())
@@ -55,6 +59,8 @@ class_id_to_target = dict(zip(label_targets, range(len(label_targets))))
 
 class_weights_target = {class_id_to_target[class_id]: weight for class_id, weight in class_weights.items()}
 class_weights_target_list = torch.tensor([class_weights_target[x] for x in range(len(class_weights_target))])
+
+
 def get_plasticc_transformer():
     """creates and returns a sane transformer for plasticc"""
     cols = [
