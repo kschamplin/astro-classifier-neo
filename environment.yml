@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - python=3.9
+  - pip
   - pandas
   - pyarrow
   - requests
@@ -18,6 +19,7 @@ dependencies:
   - torchvision
   - torchaudio
   - cudatoolkit=10.2
+  - pytorch-lightning
   - pip:
     - git+https://github.com/patrick-kidger/torchcde.git
 
