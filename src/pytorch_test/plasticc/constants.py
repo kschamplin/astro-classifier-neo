@@ -51,4 +51,4 @@ label_targets = list(label_map.keys())
 class_id_to_target = dict(zip(label_targets, range(len(label_targets))))
 
 class_weights_target = {class_id_to_target[class_id]: weight for class_id, weight in class_weights.items()}
-class_weights_target_list = torch.tensor([class_weights_target[x] for x in range(len(class_weights_target))])
+class_weights_target_list = [class_weights_target[x] for x in range(len(class_weights_target))]

@@ -6,15 +6,10 @@ import pandas as pd
 import pyarrow.feather as feather
 from pytorch_lightning import LightningDataModule
 from pathlib import Path
-
 import re
 # Constants needed for proper thingy.
 
-
-label_targets = list(label_map.keys())
-class_id_to_target = dict(zip(label_targets, range(len(label_targets))))
-
-from constants import passband_map, class_id_to_target
+from .constants import passband_map, class_id_to_target
 
 class PlasticcDataModule(LightningDataModule):
     def __init__(self, data_path: Path = Path("./data"), download=False, batch_size: int = 50):
@@ -51,8 +46,14 @@ class PlasticcDataModule(LightningDataModule):
 
 def _transform(curve, meta):
     "Converts the dataframe/series into tensors"
+    crv = torch.tensor(curve[['mjd', 'flux']].values)
+    crv[0] = crv[0] - crv[0,0] # the time always starts at zero and goes up.
 
-    return torch.tensor(curve[['mjd', 'flux']].values), torch.tensor(meta['true_target'])
+    # generate observation masks.
+    print(crv.shape)
+
+    m = int(meta['true_target'])
+    return , torch.tensor(meta['true_target'])
 
 
 def _download(data_dir):

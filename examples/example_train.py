@@ -10,7 +10,7 @@ from pytorch_test import datasets, model
 
 transform = datasets.get_plasticc_transformer()
 
-data_path = Path("plasticc_train_lightcurves.parquet")
+data_path = Path("../data/plasticc_train_lightcurves.parquet")
 train_dataset = datasets.PlasticcDataset(data_path, transform=transform)
 
 train_dataloader = datasets.get_plasticc_dataloader(

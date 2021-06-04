@@ -5,7 +5,7 @@ import torch
 import torchcde
 import torch.nn as nn
 import torch.nn.functional as F
-from pytorch_test.datasets import class_weights_target_list
+from pytorch_test.plasticc.constants import class_weights_target_list
 
 class DoubleLSTMNet(pl.LightningModule):
     """A simple chained LSTM network that tries to classify curves
