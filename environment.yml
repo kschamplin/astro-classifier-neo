@@ -20,6 +20,7 @@ dependencies:
   - torchaudio
   - cudatoolkit=10.2
   - pytorch-lightning
+  - ipywidgets
   - pip:
     - git+https://github.com/patrick-kidger/torchcde.git
 
