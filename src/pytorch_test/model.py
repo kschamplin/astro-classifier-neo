@@ -16,11 +16,10 @@ class DoubleLSTMNet(pl.LightningModule):
         super().__init__()
         # primary lstm layer)
         # 7 features, 200 hidden layers, 2 stacked.
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.dense = nn.Linear(hidden_size, num_classes)
         self.batch_size = batch_size
-        print(class_weights_target_list)
-        self.loss = nn.CrossEntropyLoss(weight=class_weights_target_list)
+        self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
 
     def init_hidden(self, bs):
         """Creates the initial lstm state given a batch size. Can be overwritten
@@ -50,9 +49,9 @@ class DoubleLSTMNet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
 
         x,y = batch
-        h0, c0 = self.init_hidden(x.shape[1])
+        h0, c0 = self.init_hidden(x.shape[0])
         y_hat, _ = self(x, (h0,c0))
-        y_hat = y_hat[-1,:]
+        y_hat = y_hat[:,-1] # we want the last output for each one.
         # loss = multi_log_loss(y_hat, y)
         loss = self.loss(y_hat, y)
         self.logger.experiment.add_scalar("loss", loss, self.global_step)
@@ -73,7 +72,7 @@ class NCDE(pl.LightningModule):
         self.model = nn.Linear(hidden_channels, hidden_channels * input_channels)
         self.output = nn.Linear(hidden_channels, output_channels)
 
-        self.loss = nn.CrossEntropyLoss(weight=class_weights_target_list)
+        self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
 
     def forward(self, x):
 

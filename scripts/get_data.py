@@ -41,7 +41,7 @@ def download():
         pbar.close()
 
 
-def gunzip():
+def gunzip(data_dir):
     # unzips all the files
     # get list of all gz files
     gzs = data_dir.glob('*.gz')
