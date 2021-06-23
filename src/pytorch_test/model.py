@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_test.plasticc.constants import class_weights_target_list
 
+
 class DoubleLSTMNet(pl.LightningModule):
     """A simple chained LSTM network that tries to classify curves
     at every timestep"""
@@ -47,15 +48,15 @@ class DoubleLSTMNet(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=1e-3)
 
     def training_step(self, batch, batch_idx):
-
-        x,y = batch
+        x, y = batch
         h0, c0 = self.init_hidden(x.shape[0])
-        y_hat, _ = self(x, (h0,c0))
-        y_hat = y_hat[:,-1] # we want the last output for each one.
+        y_hat, _ = self(x, (h0, c0))
+        y_hat = y_hat[:, -1]  # we want the last output for each one.
         # loss = multi_log_loss(y_hat, y)
         loss = self.loss(y_hat, y)
         self.logger.experiment.add_scalar("loss", loss, self.global_step)
         return loss
+
 
 def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""
@@ -75,14 +76,13 @@ class NCDE(pl.LightningModule):
         self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
 
     def forward(self, x):
-
         # NOTE: x should be the natural cubic spline coefficients. Look into datasets.py for how to generate these.
-        X = torchcde.NaturalCubicSpline(x)
-        X0 = X.evaluate(X.interval[0])
-        z0 = self.initial(X0)
-        zt = torchcde.cdeint(X=X, func=self.func, z0=z0, t=X.interval)
-        
-        return self.output(zt[...,-1,:])
+        x = torchcde.NaturalCubicSpline(x)
+        x0 = x.evaluate(x.interval[0])
+        z0 = self.initial(x0)
+        zt = torchcde.cdeint(X=x, func=self.func, z0=z0, t=x.interval)
+
+        return self.output(zt[..., -1, :])
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=1e-3)

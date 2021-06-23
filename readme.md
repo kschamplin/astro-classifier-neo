@@ -13,15 +13,8 @@ classifiers of astrophysical transients
 
 ## Running the project
 
-The project dependencies are managed with `poetry`. This has the advantage of
-lockfiles, which makes environments reproducible. To install:
-```bash
-pyenv install 3.9.1
-pyenv local 3.9.1
-poetry install -vv
-poetry run python -m ipykernel install --user --name pytorch
-jupyter lab
-```
+The project has a provided conda environment that contains all the dependencies needed for working
+with the repository. 
 
 ## Development
 CI will automatically run tests + type checks + linting on the project on every

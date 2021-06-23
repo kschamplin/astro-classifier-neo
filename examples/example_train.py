@@ -1,3 +1,5 @@
+# train a model on the plasticc dataset (assume it is downloaded already)
+
 from pathlib import Path
 
 import pytorch_lightning as pl
