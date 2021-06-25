@@ -33,3 +33,9 @@ class NNProber():
         # end loop
         # find best point in time+band (account for all possible fluxes in
         # aggregation)
+        for time in times:
+            for band in self.n_bands:
+
+
+def add_point_to_curve(curve, band,value, timestep):
+    # we append a new data point to the curves.

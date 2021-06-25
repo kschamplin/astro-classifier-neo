@@ -23,8 +23,7 @@ class DoubleLSTMNet(pl.LightningModule):
         self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
 
     def init_hidden(self, bs):
-        """Creates the initial lstm state given a batch size. Can be overwritten
-        for more performance."""
+        """Creates the initial lstm state given a batch size."""
         hidden_0 = torch.zeros(
             self.lstm.num_layers,
             bs,
@@ -33,7 +32,7 @@ class DoubleLSTMNet(pl.LightningModule):
             self.lstm.num_layers,
             bs,
             self.lstm.hidden_size).to(self.device)
-        return (hidden_0, cell_0)
+        return hidden_0, cell_0
 
     def forward(self, tensor, lstm_state):
         """Compute forward-prop of input tensor."""
@@ -57,6 +56,49 @@ class DoubleLSTMNet(pl.LightningModule):
         self.logger.experiment.add_scalar("loss", loss, self.global_step)
         return loss
 
+class GRUNet(pl.LightningModule):
+    """A simple chained GRU network that tries to classify curves
+    at every timestep"""
+
+    def __init__(self, input_size=7, hidden_size=200, num_layers=2,
+                 num_classes=14, *, batch_size=20, device=None):
+        super().__init__()
+        # primary lstm layer)
+        # 7 features, 200 hidden layers, 2 stacked.
+        self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
+        self.dense = nn.Linear(hidden_size, num_classes)
+        self.batch_size = batch_size
+        self.loss = nn.CrossEntropyLoss()
+
+    def init_hidden(self, bs):
+        """Creates the initial lstm state given a batch size."""
+        hidden_0 = torch.zeros(
+            self.gru.num_layers,
+            bs,
+            self.gru.hidden_size).to(self.device)
+        return hidden_0
+
+    def forward(self, tensor, lstm_state):
+        """Compute forward-prop of input tensor."""
+        tensor, lstm_state = self.gru(tensor.float(), lstm_state)
+        # pad the packed sequence.
+        # x = nn.utils.rnn.pad_packed_sequence(x)[0]
+        tensor = self.dense(tensor)
+        tensor = F.softmax(tensor, dim=2)
+        return tensor, lstm_state
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        h0 = self.init_hidden(x.shape[0])
+        y_hat, _ = self(x, h0)
+        y_hat = y_hat[:, -1]  # we want the last output for each one.
+        # loss = multi_log_loss(y_hat, y)
+        loss = self.loss(y_hat, y)
+        self.logger.experiment.add_scalar("loss", loss, self.global_step)
+        return loss
 
 def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""

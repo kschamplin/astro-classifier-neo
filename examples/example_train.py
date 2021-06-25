@@ -14,7 +14,7 @@ from pytorch_test.plasticc import PlasticcDataModule
 plasticcDS = PlasticcDataModule("./data", num_workers=16, batch_size=200)
 
 logger = pl.loggers.TensorBoardLogger('tb_logs', 'mymodel')
-m = model.DoubleLSTMNet(batch_size=200, input_size=13, hidden_size=500)
+m = model.GRUNet(batch_size=200, input_size=13, hidden_size=500)
 trainer = pl.Trainer(gpus=1, logger=logger, max_epochs=50)
 
 trainer.fit(m, plasticcDS)

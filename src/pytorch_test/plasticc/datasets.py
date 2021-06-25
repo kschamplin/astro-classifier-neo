@@ -44,13 +44,16 @@ class PlasticcDataModule(LightningDataModule):
         self.plasticc_test, self.plasticc_val = data.random_split(plasticc_test, [int(0.9 * l), int(0.1 * l) + 1])
 
     def train_dataloader(self):
-        return data.DataLoader(self.plasticc_train, batch_size=self.batch_size, num_workers=self.num_workers)
+        return data.DataLoader(self.plasticc_train, batch_size=self.batch_size, num_workers=self.num_workers,
+                               shuffle=True)
 
     def val_dataloader(self):
-        return data.DataLoader(self.plasticc_val, batch_size=self.batch_size, num_workers=self.num_workers)
+        return data.DataLoader(self.plasticc_val, batch_size=self.batch_size, num_workers=self.num_workers,
+                               shuffle=True)
 
     def test_dataloader(self):
-        return data.DataLoader(self.plasticc_test, batch_size=self.batch_size, num_workers=self.num_workers)
+        return data.DataLoader(self.plasticc_test, batch_size=self.batch_size, num_workers=self.num_workers,
+                               shuffle=True)
 
 
 # next we have all the helper functions.
@@ -78,6 +81,7 @@ def _transform(curve, meta):
 blacklist = [
     "plasticc_modelpar.tar.gz"
 ]
+
 
 def _download(data_dir):
     # create data dir

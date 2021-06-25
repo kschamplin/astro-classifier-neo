@@ -191,9 +191,10 @@ class DiffTransformer():
     def __repr__(self):
         return f"<{self.__class__.__name__} column: {self.cols}>"
 
+
 class DictMapTransformer():
     def __init__(self, map_dict):
         self.map_dict = map_dict
-    
+
     def __call__(self, x):
         return np.vectorize(self.map_dict.get)(x)
