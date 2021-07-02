@@ -10,7 +10,7 @@ from pytorch_test.plasticc.constants import class_weights_target_list
 
 class DoubleLSTMNet(pl.LightningModule):
     """A simple chained LSTM network that tries to classify curves
-    at every timestep"""
+    at every time-step"""
 
     def __init__(self, input_size=7, hidden_size=200, num_layers=2,
                  num_classes=14, *, batch_size=20, device=None):
@@ -56,6 +56,7 @@ class DoubleLSTMNet(pl.LightningModule):
         self.logger.experiment.add_scalar("loss", loss, self.global_step)
         return loss
 
+
 class GRUNet(pl.LightningModule):
     """A simple chained GRU network that tries to classify curves
     at every timestep"""
@@ -100,6 +101,7 @@ class GRUNet(pl.LightningModule):
         self.logger.experiment.add_scalar("loss", loss, self.global_step)
         return loss
 
+
 def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""
     return (-(pred + 1e-24).log() * target).sum(dim=1).mean()
@@ -134,3 +136,42 @@ class NCDE(pl.LightningModule):
         pred_y = self(x).squeeze(-1)
         loss = self.loss(pred_y, y)
         return loss
+
+
+class VEncoder(torch.Module):
+    """GRU Encoder for VAE"""
+    def __init__(self, input_channels, hidden_size, latent_dims):
+        super(torch.Module, self).__init__()
+        self.gru = nn.GRU(input_channels, hidden_size, batch_first=True)
+
+        self.z_mean = nn.Linear(hidden_size, latent_dims)
+        self.z_var = nn.Linear(hidden_size, latent_dims)
+
+    def forward(self, x):
+        x = F.relu(self.gru(x))
+        return self.z_mean(x), self.z_var(x)
+
+
+class VDecoder(torch.Module):
+    """GRU Decoder for VAE"""
+    def __init__(self, latent_dims, hidden_size, output_length):
+        self.gru = nn.GRU(latent_dims, hidden_size,batch_first=True)
+        self.linear = nn.Linear(hidden_size, output_length)
+
+    def forward(self, x):
+        x = self.gru(x)
+        x = self.linear(x)
+        return x
+
+
+class AutoEncoder(pl.LightningModule):
+    """Variational Auto-encoder model used to augment dataset and fill in space."""
+
+    def __init__(self, input_channels=7, latent_dims=50):
+        super().__init__()
+        self.encoder = VEncoder(input_channels, 150, latent_dims)
+        self.decoder = VDecoder(latent_dims, 150, 200)
+
+
+
+

@@ -19,7 +19,7 @@ from .constants import passband_map, class_id_to_target, label_targets
 
 
 class PlasticcDataModule(LightningDataModule):
-    def __init__(self, data_path: Path = Path("./data"), download=False, batch_size: int = 50, num_workers=8):
+    def __init__(self, data_path: Path = Path("./data"), download=False, batch_size: int = 50, num_workers=8, use_splines=False):
         super().__init__()
         self.data_path = Path(data_path)
         self.download = download
