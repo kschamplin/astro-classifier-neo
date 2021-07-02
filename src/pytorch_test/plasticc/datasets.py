@@ -25,6 +25,7 @@ class PlasticcDataModule(LightningDataModule):
         self.download = download
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.use_splines = use_splines
 
     def prepare_data(self):
         # download the CSV if the feather files arent there yet.
@@ -35,7 +36,7 @@ class PlasticcDataModule(LightningDataModule):
             _zenodo_convert(self.data_path)
 
     def setup(self, stage=None):
-        transform = _transform
+        transform = PlasticcTransformer(self.use_splines)
         # construct the testing dataset by using concat dataset.
         self.plasticc_train = PlasticcDataset("plasticc_train", self.data_path, transform)
         plasticc_test = data.ConcatDataset(
@@ -57,26 +58,29 @@ class PlasticcDataModule(LightningDataModule):
 
 
 # next we have all the helper functions.
-def _transform(curve, meta):
-    "Converts the dataframe/series into tensors"
-    curve = torch.tensor(curve[['mjd', 'flux']].values)
-    curve[:, 0] = curve[:, 0] - curve[0, 0]  # the time always starts at zero and goes up.
+class PlasticcTransformer:
+    def __init__(self, make_splines=False):
+        self.make_splines = make_splines
 
-    # generate observation masks. the current shape is (len,channels) where the first channel is time. So we must
-    # take the remaining channels and generate an observation mask (!= nan)
-    for channel in range(1, curve.shape[1]):
-        mask = (~curve[:, channel].isnan()).cumsum(0)
-        curve = torch.cat((curve, mask.unsqueeze(-1)), 1)
+    def __call__(self, curve, meta):
+        "Converts the dataframe/series into tensors"
+        curve = torch.from_numpy(curve[['mjd', 'flux', 'flux_err']].values).float()
+        curve[:, 0] = curve[:, 0] - curve[0, 0]  # the time always starts at zero and goes up.
 
-    # fill forward to fixed length (500)
-    curve = torch.cat([curve, curve[-1].unsqueeze(0).expand(500 - curve.size(0), curve.size(1))])
-    # fillnan (TODO Remove for ncde)
-    curve = torch.nan_to_num(curve)
-    m = int(meta['true_target'])
-    # convert the target to the 0-14 class layout.
-    m = torch.tensor(class_id_to_target[m])
-    return curve, m
+        # generate observation masks. the current shape is (len,channels) where the first channel is time. So we must
+        # take the remaining channels and generate an observation mask (!= nan)
+        for channel in range(1, curve.shape[1]):
+            mask = (~curve[:, channel].isnan()).cumsum(0)
+            curve = torch.cat((curve, mask.unsqueeze(-1)), 1)
 
+        # fill forward to fixed length (500)
+        curve = torch.cat([curve, curve[-1].unsqueeze(0).expand(500 - curve.size(0), curve.size(1))])
+        if not self.make_splines:
+            curve = torch.nan_to_num(curve)
+        m = int(meta['true_target'])
+        # convert the target to the 0-14 class layout.
+        m = torch.tensor(class_id_to_target[m])
+        return curve, m
 
 blacklist = [
     "plasticc_modelpar.tar.gz"

@@ -106,25 +106,51 @@ def multi_log_loss(pred, target):
     """Computes the multi-class log loss from two one-hot vectors."""
     return (-(pred + 1e-24).log() * target).sum(dim=1).mean()
 
+# NCDE Stuff
+
+
+class F(torch.nn.Module):
+    def __init__(self, input_channels, hidden_channels):
+        super(F, self).__init__()
+        # For illustrative purposes only. You should usually use an MLP or something. A single linear layer won't be
+        # that great.
+        self.linear = torch.nn.Linear(hidden_channels,
+                                          hidden_channels * input_channels)
+        self.hidden_channels = hidden_channels
+        self.input_channels = input_channels
+
+    def forward(self, t, z):
+        batch_dims = z.shape[:-1]
+        return self.linear(z).tanh().view(*batch_dims, self.hidden_channels, self.input_channels)
+
 
 class NCDE(pl.LightningModule):
     """Neural Controlled Differential Equation model for classification on irregular, multi-modal time series"""
 
-    def __init__(self, input_channels=7, hidden_channels=128, output_channels=14):
+    def __init__(self, input_channels=7, hidden_channels=128, output_channels=14, interpolation="cubic"):
         super().__init__()
 
         self.initial = nn.Linear(input_channels, hidden_channels)
-        self.model = nn.Linear(hidden_channels, hidden_channels * input_channels)
+        self.model = F(input_channels, hidden_channels)
         self.output = nn.Linear(hidden_channels, output_channels)
 
         self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
 
+        self.interpolation = interpolation
+
     def forward(self, x):
         # NOTE: x should be the natural cubic spline coefficients. Look into datasets.py for how to generate these.
-        x = torchcde.NaturalCubicSpline(x)
+        x = torchcde.natural_cubic_coeffs(x)
+        if self.interpolation == "cubic":
+            x = torchcde.NaturalCubicSpline(x)
+        elif self.interpolation == "linear":
+            x = torchcde.LinearInterpolation(x)
+        else:
+            raise ValueError("invalid interpolation given")
+
         x0 = x.evaluate(x.interval[0])
         z0 = self.initial(x0)
-        zt = torchcde.cdeint(X=x, func=self.func, z0=z0, t=x.interval)
+        zt = torchcde.cdeint(X=x, func=self.model, z0=z0, t=x.interval)
 
         return self.output(zt[..., -1, :])
 
@@ -137,11 +163,13 @@ class NCDE(pl.LightningModule):
         loss = self.loss(pred_y, y)
         return loss
 
+# Variational Autoencoder stuff.
 
-class VEncoder(torch.Module):
+
+class VEncoder(torch.nn.Module):
     """GRU Encoder for VAE"""
     def __init__(self, input_channels, hidden_size, latent_dims):
-        super(torch.Module, self).__init__()
+        super(torch.nn.Module, self).__init__()
         self.gru = nn.GRU(input_channels, hidden_size, batch_first=True)
 
         self.z_mean = nn.Linear(hidden_size, latent_dims)
@@ -152,9 +180,10 @@ class VEncoder(torch.Module):
         return self.z_mean(x), self.z_var(x)
 
 
-class VDecoder(torch.Module):
+class VDecoder(torch.nn.Module):
     """GRU Decoder for VAE"""
     def __init__(self, latent_dims, hidden_size, output_length):
+        super(torch.nn.Module, self).__init__()
         self.gru = nn.GRU(latent_dims, hidden_size, batch_first=True)
         self.linear = nn.Linear(hidden_size, output_length)
 

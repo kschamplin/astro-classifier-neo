@@ -21,6 +21,7 @@ dependencies:
   - cudatoolkit=10.2
   - pytorch-lightning
   - ipywidgets
+  - ipykernel
   - pip:
     - git+https://github.com/patrick-kidger/torchcde.git
 
