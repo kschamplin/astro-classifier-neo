@@ -155,7 +155,7 @@ class VEncoder(torch.Module):
 class VDecoder(torch.Module):
     """GRU Decoder for VAE"""
     def __init__(self, latent_dims, hidden_size, output_length):
-        self.gru = nn.GRU(latent_dims, hidden_size,batch_first=True)
+        self.gru = nn.GRU(latent_dims, hidden_size, batch_first=True)
         self.linear = nn.Linear(hidden_size, output_length)
 
     def forward(self, x):
@@ -172,6 +172,7 @@ class AutoEncoder(pl.LightningModule):
         self.encoder = VEncoder(input_channels, 150, latent_dims)
         self.decoder = VDecoder(latent_dims, 150, 200)
 
-
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
 
 
