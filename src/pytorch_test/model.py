@@ -169,7 +169,7 @@ class NCDE(pl.LightningModule):
 class VEncoder(torch.nn.Module):
     """GRU Encoder for VAE"""
     def __init__(self, input_channels, hidden_size, latent_dims):
-        super(torch.nn.Module, self).__init__()
+        super().__init__()
         self.gru = nn.GRU(input_channels, hidden_size, batch_first=True)
 
         self.z_mean = nn.Linear(hidden_size, latent_dims)
@@ -183,7 +183,7 @@ class VEncoder(torch.nn.Module):
 class VDecoder(torch.nn.Module):
     """GRU Decoder for VAE"""
     def __init__(self, latent_dims, hidden_size, output_length):
-        super(torch.nn.Module, self).__init__()
+        super().__init__()
         self.gru = nn.GRU(latent_dims, hidden_size, batch_first=True)
         self.linear = nn.Linear(hidden_size, output_length)
 
