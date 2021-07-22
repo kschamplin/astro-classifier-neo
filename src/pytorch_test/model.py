@@ -109,7 +109,7 @@ def multi_log_loss(pred, target):
 # NCDE Stuff
 
 
-class F(torch.nn.Module):
+class DE_fun(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels):
         super(F, self).__init__()
         # For illustrative purposes only. You should usually use an MLP or something. A single linear layer won't be
@@ -131,7 +131,7 @@ class NCDE(pl.LightningModule):
         super().__init__()
 
         self.initial = nn.Linear(input_channels, hidden_channels)
-        self.model = F(input_channels, hidden_channels)
+        self.model = DE_fun(input_channels, hidden_channels)
         self.output = nn.Linear(hidden_channels, output_channels)
 
         self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
@@ -173,11 +173,12 @@ class VEncoder(torch.nn.Module):
         self.gru = nn.GRU(input_channels, hidden_size, batch_first=True)
 
         self.z_mean = nn.Linear(hidden_size, latent_dims)
-        self.z_var = nn.Linear(hidden_size, latent_dims)
+        self.z_std = nn.Linear(hidden_size, latent_dims)
 
     def forward(self, x):
-        x = F.relu(self.gru(x))
-        return self.z_mean(x), self.z_var(x)
+        x, _ = self.gru(x)
+        x = F.relu(x)
+        return self.z_mean(x), self.z_std(x)
 
 
 class VDecoder(torch.nn.Module):
@@ -188,7 +189,7 @@ class VDecoder(torch.nn.Module):
         self.linear = nn.Linear(hidden_size, output_length)
 
     def forward(self, x):
-        x = self.gru(x)
+        x, _ = self.gru(x)
         x = self.linear(x)
         return x
 
@@ -201,7 +202,56 @@ class AutoEncoder(pl.LightningModule):
         self.encoder = VEncoder(input_channels, 150, latent_dims)
         self.decoder = VDecoder(latent_dims, 150, 200)
 
+        self.log_scale = nn.Parameter(torch.Tensor([0.0]))
+
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=1e-3)
+
+    def kl_divergence(self, z, mu, std):
+        "MC KL Divergence"
+
+        p = torch.distributions.Normal(torch.zeros_like(mu), torch.ones_like(std))
+        q = torch.distributions.Normal(mu, std)
+
+        log_qzx = q.log_prob(z)
+        log_pz = p.log_prob(z)
+        kl = log_qzx - log_pz
+
+        return kl.sum(-1)
+
+    def gaussian_likelihood(self, x_hat, logscale, x):
+        scale = torch.exp(logscale)
+        mean = x_hat
+        dist = torch.distributions.Normal(mean, scale)
+
+        log_pzx = dist.log_prob(x)
+
+        return log_pzx.sum(dim=(1,2,3))
+
+    def training_step(self, batch, batch_idx):
+        x, _ = batch # discard true class (don't care)
+
+        x_mean, x_std = self.encoder(x) # get probs in latent space for x
+
+        x_std = torch.exp(x_std / 2)
+        q = torch.distributions.Normal(x_mean, x_std)
+        z = q.rsample()
+
+        x_hat = self.decoder(z)
+
+        recon_loss = self.gaussian_likelihood(x_hat, self.log_scale, x)
+
+        kl_loss = self.kl_divergence(z, x_mean, x_std)
+
+        elbo = kl_loss - recon_loss
+        elbo = elbo.mean()
+
+        self.log_dict({
+            'elbo': elbo,
+            'kl': kl_loss,
+            'recon': recon_loss
+        })
+
+        return elbo
 
 
