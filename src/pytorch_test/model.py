@@ -109,7 +109,7 @@ def multi_log_loss(pred, target):
 # NCDE Stuff
 
 
-class DE_fun(torch.nn.Module):
+class NCDEFunction(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels):
         super(F, self).__init__()
         # For illustrative purposes only. You should usually use an MLP or something. A single linear layer won't be
@@ -131,7 +131,7 @@ class NCDE(pl.LightningModule):
         super().__init__()
 
         self.initial = nn.Linear(input_channels, hidden_channels)
-        self.model = DE_fun(input_channels, hidden_channels)
+        self.model = NCDEFunction(input_channels, hidden_channels)
         self.output = nn.Linear(hidden_channels, output_channels)
 
         self.loss = nn.CrossEntropyLoss(weight=torch.tensor(class_weights_target_list))
@@ -177,7 +177,7 @@ class VEncoder(torch.nn.Module):
 
     def forward(self, x):
         x, _ = self.gru(x)
-        x = F.relu(x)
+        x = F.relu(x[-1])
         return self.z_mean(x), self.z_std(x)
 
 
@@ -229,9 +229,9 @@ class AutoEncoder(pl.LightningModule):
         return log_pzx.sum(dim=(1,2,3))
 
     def training_step(self, batch, batch_idx):
-        x, _ = batch # discard true class (don't care)
+        x, _ = batch  # discard true class (don't care)
 
-        x_mean, x_std = self.encoder(x) # get probs in latent space for x
+        x_mean, x_std = self.encoder(x)  # get probs in latent space for x
 
         x_std = torch.exp(x_std / 2)
         q = torch.distributions.Normal(x_mean, x_std)
