@@ -222,11 +222,11 @@ class AutoEncoder(pl.LightningModule):
 
         return kl.sum(-1)
 
-    def gaussian_likelihood(self, x_hat, logscale, x):
-        scale = torch.exp(logscale)
-        mean = x_hat
-        dist = torch.distributions.Normal(mean, scale)
+    def gaussian_likelihood(self, x_hat, x):
+        scale = torch.exp(self.log_scale)
+        dist = torch.distributions.Normal(x_hat, scale)
 
+        print(dist.batch_shape, dist.event_shape, x.shape, x_hat.shape)
         log_pzx = dist.log_prob(x)
 
         return log_pzx.sum(dim=(1,2,3))
@@ -236,13 +236,13 @@ class AutoEncoder(pl.LightningModule):
 
         x_mean, x_std = self.encoder(x)  # get probs in latent space for x
 
-        x_std = torch.exp(x_std / 2)
+        x_std = torch.exp(x_std / 2) # log std dev
         q = torch.distributions.Normal(x_mean, x_std)
         z = q.rsample() # sample the distribution
 
         x_hat = self.decoder(z)
 
-        recon_loss = self.gaussian_likelihood(x_hat, self.log_scale, x)
+        recon_loss = self.gaussian_likelihood(x_hat, x)
         kl_loss = self.kl_divergence(z, x_mean, x_std)
 
         elbo = kl_loss - recon_loss
