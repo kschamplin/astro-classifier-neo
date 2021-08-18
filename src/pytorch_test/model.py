@@ -177,18 +177,21 @@ class VEncoder(torch.nn.Module):
 
     def forward(self, x):
         x, _ = self.gru(x)
-        x = F.relu(x[-1])
+        x = F.relu(x[:, -1])
         return self.z_mean(x), self.z_std(x)
 
 
 class VDecoder(torch.nn.Module):
     """GRU Decoder for VAE"""
-    def __init__(self, latent_dims, hidden_size, output_length):
+    def __init__(self, latent_dims, hidden_size, output_length, sequence_length=500):
         super().__init__()
+
         self.gru = nn.GRU(latent_dims, hidden_size, batch_first=True)
         self.linear = nn.Linear(hidden_size, output_length)
+        self.sequence_length = sequence_length
 
     def forward(self, x):
+        x = x.unsqueeze(1).repeat(1, self.sequence_length, 1)
         x, _ = self.gru(x)
         x = self.linear(x)
         return x
@@ -235,12 +238,11 @@ class AutoEncoder(pl.LightningModule):
 
         x_std = torch.exp(x_std / 2)
         q = torch.distributions.Normal(x_mean, x_std)
-        z = q.rsample()
+        z = q.rsample() # sample the distribution
 
         x_hat = self.decoder(z)
 
         recon_loss = self.gaussian_likelihood(x_hat, self.log_scale, x)
-
         kl_loss = self.kl_divergence(z, x_mean, x_std)
 
         elbo = kl_loss - recon_loss
