@@ -59,7 +59,7 @@ class AutoEncoder(pl.LightningModule):
         self.log_scale = nn.Parameter(torch.Tensor([0.0]))
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=1e-3)
+        return torch.optim.Adam(self.parameters(), lr=1e-2)
 
     def gaussian_likelihood(self, x_hat, x):
         scale = torch.exp(self.log_scale)

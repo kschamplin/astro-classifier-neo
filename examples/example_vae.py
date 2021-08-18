@@ -1,5 +1,4 @@
 # VAE training example
-
 import pytorch_lightning as pl
 
 from pytorch_test.models.vae import AutoEncoder
