@@ -1,10 +1,8 @@
 # VAE training example
 
-from pathlib import Path
-
 import pytorch_lightning as pl
 
-from pytorch_test.model import AutoEncoder
+from pytorch_test.models.vae import AutoEncoder
 from pytorch_test.plasticc import PlasticcDataModule
 
 plasticcDS = PlasticcDataModule("./data", num_workers=4, batch_size=200)
