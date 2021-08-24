@@ -88,8 +88,8 @@ class AutoEncoder(pl.LightningModule):
 
         self.log_dict({
             'elbo': elbo,
-            'kl': kl_loss,
-            'recon': recon_loss
+            # 'kl': kl_loss,
+            # 'recon': recon_loss
         })
 
         return elbo
