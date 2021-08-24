@@ -31,8 +31,8 @@ class PlasticcDataModule(LightningDataModule):
         # download the CSV if the feather files arent there yet.
         # process and save
         if self.download:
-            # _download(self.data_path)
-            # _gunzip(self.data_path)
+            _download(self.data_path)
+            _gunzip(self.data_path)
             _zenodo_convert(self.data_path)
 
     def setup(self, stage=None):
