@@ -53,7 +53,7 @@ class AutoEncoder(pl.LightningModule):
 
     def __init__(self, input_channels=7, latent_dims=50):
         super().__init__()
-        self.encoder = VEncoder(input_channels, 150, latent_dims)
+        self.encoder = VEncoder(input_channels, 200, latent_dims)
         self.decoder = VDecoder(latent_dims, 150, input_channels)
 
         self.log_scale = nn.Parameter(torch.Tensor([0.0]))
