@@ -52,5 +52,5 @@ if __name__ == "__main__":
     sets.append(("data/plasticc_train_curves.feather", "data/plasticc_train_meta.feather"))
     with Pool(4) as p:
         p.map(convert_set, sets)
-
+    print("done")
 
