@@ -29,7 +29,7 @@ def convert_set(filepair):
     n_parts = 0
     iterator = tqdm(meta_df.iterrows())
     for index, meta in iterator:
-        if meta['target'] not in class_id_to_target.keys():
+        if meta['true_target'] not in class_id_to_target.keys():
             continue
         curve = curve_df[curve_df[('object_id', '')] == meta['object_id']]
 
