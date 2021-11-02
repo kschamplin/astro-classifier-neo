@@ -20,14 +20,15 @@ def generate_spline(curve, meta):
 # iterate through all files, then for each curve in each file.
 
 
-def convert_set(files):
-    curve_file, meta_file = files
+def convert_set(filepair):
+    curve_file, meta_file = filepair
     curve_df = pd.read_feather(curve_file)
     curve_df.columns = curve_df.columns.map(eval)
     meta_df = pd.read_feather(meta_file)
     result = []
     n_parts = 0
-    for index, meta in tqdm(meta_df.iterrows()):
+    iterator = tqdm(meta_df.iterrows())
+    for index, meta in iterator:
         if meta['target'] not in class_id_to_target.keys():
             continue
         curve = curve_df[curve_df[('object_id', '')] == meta['object_id']]
@@ -35,6 +36,7 @@ def convert_set(files):
         result.append(generate_spline(curve, meta))
         if len(result) >= 1000:
             torch.save(result, f"{curve_file}_{n_parts}.pt")
+            iterator.set_description(f"processed batch {n_parts}")
             n_parts = n_parts + 1
             result = []
 
