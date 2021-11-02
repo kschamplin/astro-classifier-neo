@@ -20,27 +20,33 @@ def generate_spline(curve, meta):
 # iterate through all files, then for each curve in each file.
 
 
-def convert_set(set):
-    curve_file, meta_file = set
+def convert_set(files):
+    curve_file, meta_file = files
     curve_df = pd.read_feather(curve_file)
     curve_df.columns = curve_df.columns.map(eval)
     meta_df = pd.read_feather(meta_file)
     result = []
+    n_parts = 0
     for index, meta in tqdm(meta_df.iterrows()):
         if meta['target'] not in class_id_to_target.keys():
             continue
         curve = curve_df[curve_df[('object_id', '')] == meta['object_id']]
 
         result.append(generate_spline(curve, meta))
+        if len(result) >= 10:
+            torch.save(result, f"{curve_file}_{n_parts}.pt")
+            n_parts = n_parts + 1
+            result = []
+
 
     # result has a bunch of (coeff, target) tuples. we need to save them.
-    torch.save(result, f"{curve_file}.pt")
+    # torch.save(result, f"{curve_file}.pt")
 
 
 if __name__ == "__main__":
     # find all meta and curve files.
     sets = []
-    for i in range(1,12):
+    for i in range(1, 12):
         s = f"data/plasticc_test_{i:02}"
         sets.append((s + "_curves.feather", s + "_meta.feather"))
     sets.append(("data/plasticc_train_curves.feather", "data/plasticc_train_meta.feather"))
