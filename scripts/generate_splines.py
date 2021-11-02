@@ -33,7 +33,7 @@ def convert_set(files):
         curve = curve_df[curve_df[('object_id', '')] == meta['object_id']]
 
         result.append(generate_spline(curve, meta))
-        if len(result) >= 10:
+        if len(result) >= 1000:
             torch.save(result, f"{curve_file}_{n_parts}.pt")
             n_parts = n_parts + 1
             result = []
